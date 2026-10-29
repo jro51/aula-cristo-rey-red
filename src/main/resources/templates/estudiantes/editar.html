@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar Estudiante | Aula Virtual</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/alpine.min.js}"></script>
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800" x-data="{ sidebarToggle: false, darkMode: false, menuToggle: false }">
+    <div class="flex h-screen overflow-hidden">
+        <div th:replace="~{partials/sidebar :: sidebar}"></div>
+        <div class="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+            <div th:replace="~{partials/overlay :: overlay}"></div>
+            <div th:replace="~{partials/header :: header}"></div>
+
+            <main class="p-6 sm:p-10 space-y-6">
+                <div class="flex flex-col gap-y-4">
+                    <h1 class="text-2xl font-bold">Editar Estudiante</h1>
+                    
+                    <div th:if="${mensajeExito}" class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50" role="alert">
+                        <span class="font-medium" th:text="${mensajeExito}"></span>
+                    </div>
+
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm max-w-3xl">
+                        <!-- El action apunta dinámicamente al ID del estudiante -->
+                        <form th:action="@{/estudiantes/editar/{id}(id=${estudiante.id})}" th:object="${estudiante}" method="post">
+                            
+                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-6">
+                                
+                                <!-- Campos Bloqueados: Código y DNI -->
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">Código Institucional</label>
+                                    <input type="text" th:field="*{codigo}" readonly class="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2.5 text-gray-500 cursor-not-allowed" />
+                                </div>
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">DNI / Identificador</label>
+                                    <input type="text" th:field="*{dni}" readonly class="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2.5 text-gray-500 cursor-not-allowed" />
+                                </div>
+
+                                <!-- Campos Editables -->
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">Nombres <span class="text-red-500">*</span></label>
+                                    <input type="text" th:field="*{nombres}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none" required />
+                                    <p th:if="${#fields.hasErrors('nombres')}" th:errors="*{nombres}" class="mt-1 text-xs text-red-500"></p>
+                                </div>
+
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">Apellidos <span class="text-red-500">*</span></label>
+                                    <input type="text" th:field="*{apellidos}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none" required />
+                                    <p th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}" class="mt-1 text-xs text-red-500"></p>
+                                </div>
+
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">Correo Electrónico <span class="text-red-500">*</span></label>
+                                    <input type="email" th:field="*{correo}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none" required />
+                                    <p th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}" class="mt-1 text-xs text-red-500"></p>
+                                </div>
+
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">Teléfono</label>
+                                    <input type="tel" th:field="*{telefono}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none" />
+                                </div>
+
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">Grado <span class="text-red-500">*</span></label>
+                                    <select th:field="*{grado}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 bg-white focus:border-blue-500 focus:outline-none">
+                                        <option value="1ro Secundaria">1ro Secundaria</option>
+                                        <option value="2do Secundaria">2do Secundaria</option>
+                                        <option value="3ro Secundaria">3ro Secundaria</option>
+                                        <option value="4to Secundaria">4to Secundaria</option>
+                                        <option value="5to Secundaria">5to Secundaria</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">Sección <span class="text-red-500">*</span></label>
+                                    <select th:field="*{seccion}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 bg-white focus:border-blue-500 focus:outline-none">
+                                        <option value="A">Sección A</option>
+                                        <option value="B">Sección B</option>
+                                        <option value="C">Sección C</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Ocultamos la fecha de nacimiento para evitar complicaciones de parseo en la edición si no es estrictamente necesario actualizarla, pero la enviamos de vuelta al servidor -->
+                                <input type="hidden" th:field="*{fechaNacimiento}" />
+                            </div>
+
+                            <div class="flex justify-end gap-3 border-t border-gray-100 pt-5">
+                                <a href="/estudiantes" class="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Volver a la lista</a>
+                                <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700">Actualizar Datos</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

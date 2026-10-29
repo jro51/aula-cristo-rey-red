@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bandeja de Solicitudes | Aula Virtual</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/alpine.min.js}"></script>
+</head>
+<body class="bg-gray-50 text-gray-800" x-data="{ sidebarToggle: false, darkMode: false, menuToggle: false }">
+<div class="flex h-screen overflow-hidden">
+    <div th:replace="~{partials/sidebar :: sidebar}"></div>
+    <div class="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+        <div th:replace="~{partials/header :: header}"></div>
+
+        <main class="p-6 sm:p-10 space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Bandeja de Solicitudes</h1>
+                    <p class="text-sm text-gray-500 mt-1">Revisa y evalúa las prematrículas entrantes.</p>
+                </div>
+
+                <!-- Filtro por Estado (AVCR-181) -->
+                <form th:action="@{/prematriculas/lista}" method="get" class="flex items-center gap-2">
+                    <select name="estado" onchange="this.form.submit()" class="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 outline-none">
+                        <option value="">Todos los estados</option>
+                        <option value="PENDIENTE" th:selected="${estadoSeleccionado == 'PENDIENTE'}">Pendientes</option>
+                        <option value="OBSERVADA" th:selected="${estadoSeleccionado == 'OBSERVADA'}">Observadas</option>
+                        <option value="APROBADA" th:selected="${estadoSeleccionado == 'APROBADA'}">Aprobadas</option>
+                    </select>
+                </form>
+            </div>
+
+            <div th:if="${mensajeExito}" class="p-4 text-sm text-green-800 bg-green-50 rounded-lg border border-green-200" th:text="${mensajeExito}"></div>
+            <div th:if="${mensajeWarning}" class="p-4 text-sm text-yellow-800 bg-yellow-50 rounded-lg border border-yellow-200" th:text="${mensajeWarning}"></div>
+
+            <!-- CONTENEDOR PARCIAL PARA TIEMPO REAL -->
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden overflow-x-auto">
+                <div id="tablaSolicitudesContainer" th:fragment="tablaSolicitudesContainer">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Código</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Estudiante</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Grado</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Fecha</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Estado</th>
+                            <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Acción</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                        <tr th:each="solicitud : ${solicitudes}" class="hover:bg-gray-50">
+                            <td class="px-6 py-4 font-medium text-blue-600" th:text="${solicitud.codigoSolicitud}"></td>
+                            <td class="px-6 py-4 text-sm text-gray-900" th:text="${solicitud.estudiante.nombres + ' ' + solicitud.estudiante.apellidos}"></td>
+                            <td class="px-6 py-4 text-sm text-gray-500" th:text="${solicitud.estudiante.grado}"></td>
+                            <td class="px-6 py-4 text-sm text-gray-500" th:text="${#temporals.format(solicitud.fechaRegistro, 'dd/MM/yyyy')}"></td>
+                            <td class="px-6 py-4">
+                                        <span th:text="${solicitud.estado}"
+                                              th:classappend="${solicitud.estado.name() == 'PENDIENTE' ? 'bg-yellow-100 text-yellow-800' : (solicitud.estado.name() == 'APROBADA' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}"
+                                              class="px-2.5 py-1 text-xs font-medium rounded-full"></span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <a th:href="@{/prematriculas/revisar/{id}(id=${solicitud.id})}" class="text-sm font-medium text-blue-600 hover:underline">Revisar</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(solicitudes)}">
+                            <td colspan="6" class="px-6 py-10 text-center text-gray-500">No hay solicitudes para mostrar.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Script de sincronización asíncrona en tiempo real -->
+<script>
+    setInterval(function () {
+        const activeElement = document.activeElement;
+        const isInteracting = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT' || activeElement.tagName === 'TEXTAREA');
+
+        if (!isInteracting) {
+            const urlParams = window.location.search;
+            fetch('/prematriculas/lista/parcial' + urlParams)
+                .then(res => res.text())
+                .then(html => {
+                    if (html.trim() !== '') {
+                        const container = document.getElementById('tablaSolicitudesContainer');
+                        if (container) {
+                            const scrollContainer = container.closest('.overflow-x-auto');
+                            // 1. Guardar la posición actual del scroll horizontal
+                            const scrollPos = scrollContainer ? scrollContainer.scrollLeft : 0;
+
+                            // 2. Actualizar el contenido HTML
+                            container.innerHTML = html;
+
+                            // 3. Restaurar la posición del scroll para que no se mueva
+                            if (scrollContainer) {
+                                scrollContainer.scrollLeft = scrollPos;
+                            }
+                        }
+                    }
+                })
+                .catch(err => console.error('Error al actualizar bandeja de solicitudes:', err));
+        }
+    }, 3000);
+</script>
+</body>
+</html>

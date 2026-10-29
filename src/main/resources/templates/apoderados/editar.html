@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Editar Apoderado | Aula Virtual</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/alpine.min.js}"></script>
+    <link href="/css/style.css" rel="stylesheet"/>
+</head>
+<body class="bg-gray-50 text-gray-800" x-data="{ sidebarToggle: false, darkMode: false, menuToggle: false }">
+<div class="flex h-screen overflow-hidden">
+    <div th:replace="~{partials/sidebar :: sidebar}"></div>
+    <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+        <div th:replace="~{partials/overlay :: overlay}"></div>
+        <div th:replace="~{partials/header :: header}"></div>
+
+        <main class="space-y-6 p-6 sm:p-10">
+            <div class="flex flex-col gap-y-4">
+                <h1 class="text-2xl font-bold">Editar Apoderado</h1>
+
+                <div th:if="${mensajeExito}" class="mb-4 rounded-lg bg-green-50 p-4 text-sm text-green-800" role="alert">
+                    <span class="font-medium" th:text="${mensajeExito}"></span>
+                </div>
+
+                <div class="max-w-3xl rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <form th:action="@{/apoderados/editar/{id}(id=${apoderado.id})}" th:object="${apoderado}" method="post">
+                        <!-- Campo oculto para mantener el DNI y el ID ya que están deshabilitados o son parte de la ruta -->
+                        <input type="hidden" th:field="*{id}" />
+                        <input type="hidden" th:field="*{dni}" />
+                        
+                        <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">DNI (No editable)</label>
+                                <input type="text" th:field="*{dni}" disabled class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-gray-500 focus:outline-none"/>
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Parentesco <span class="text-red-500">*</span></label>
+                                <select th:field="*{parentesco}" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                    <option value="Madre">Madre</option>
+                                    <option value="Padre">Padre</option>
+                                    <option value="Apoderado Legal">Apoderado Legal</option>
+                                    <option value="Familiar">Familiar</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Nombres <span class="text-red-500">*</span></label>
+                                <input type="text" th:field="*{nombres}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"/>
+                                <p th:if="${#fields.hasErrors('nombres')}" th:errors="*{nombres}" class="mt-1 text-xs text-red-500"></p>
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Apellidos <span class="text-red-500">*</span></label>
+                                <input type="text" th:field="*{apellidos}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"/>
+                                <p th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}" class="mt-1 text-xs text-red-500"></p>
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Teléfono <span class="text-red-500">*</span></label>
+                                <input type="tel" th:field="*{telefono}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"/>
+                                <p th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="mt-1 text-xs text-red-500"></p>
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Correo Electrónico <span class="text-red-500">*</span></label>
+                                <input type="email" th:field="*{email}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"/>
+                                <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="mt-1 text-xs text-red-500"></p>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Dirección</label>
+                                <input type="text" th:field="*{direccion}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"/>
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Estado</label>
+                                <div class="flex items-center gap-4 py-2">
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" th:field="*{estado}" th:value="true" class="form-radio text-blue-600"/>
+                                        <span class="ml-2">Activo</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" th:field="*{estado}" th:value="false" class="form-radio text-red-600"/>
+                                        <span class="ml-2">Inactivo</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-3 border-t border-gray-100 pt-5">
+                            <a href="/apoderados" class="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancelar</a>
+                            <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

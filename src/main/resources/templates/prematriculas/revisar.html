@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revisar Solicitud | Aula Virtual</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/alpine.min.js}"></script>
+</head>
+<body class="bg-gray-50 text-gray-800" x-data="{ sidebarToggle: false, darkMode: false, menuToggle: false, mostrarMotivo: false }">
+    <div class="flex h-screen overflow-hidden">
+        <div th:replace="~{partials/sidebar :: sidebar}"></div>
+        <div class="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+            <div th:replace="~{partials/header :: header}"></div>
+
+            <main class="p-6 sm:p-10 space-y-6 max-w-5xl mx-auto w-full">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">Revisión de Solicitud</h1>
+                        <p class="text-sm text-gray-500 mt-1">Evalúa los documentos presentados por el apoderado.</p>
+                    </div>
+                    <a href="/prematriculas/lista" class="text-sm text-gray-500 hover:text-gray-800 transition">← Volver al listado</a>
+                </div>
+
+                <div th:if="${mensajeError}" class="p-4 text-sm text-red-800 bg-red-50 rounded-lg border border-red-200" th:text="${mensajeError}"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Datos y Documentos -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                            <h3 class="text-lg font-semibold border-b pb-2 mb-4">Información General</h3>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div><span class="block text-gray-500 text-xs uppercase">Estudiante</span><span class="font-medium" th:text="${solicitud.estudiante.nombres + ' ' + solicitud.estudiante.apellidos}"></span></div>
+                                <div><span class="block text-gray-500 text-xs uppercase">Grado Solicitado</span><span class="font-medium" th:text="${solicitud.estudiante.grado}"></span></div>
+                                <div><span class="block text-gray-500 text-xs uppercase">Apoderado</span><span class="font-medium" th:text="${solicitud.apoderado.nombres + ' ' + solicitud.apoderado.apellidos}"></span></div>
+                                <div><span class="block text-gray-500 text-xs uppercase">Celular Contacto</span><span class="font-medium" th:text="${solicitud.apoderado.telefono}"></span></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                            <h3 class="text-lg font-semibold border-b pb-2 mb-4">Documentos Adjuntos</h3>
+                            <ul class="divide-y divide-gray-100">
+                                <li th:each="doc : ${documentos}" class="py-3 flex justify-between items-center">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900" th:text="${doc.tipoDocumento}"></p>
+                                        <p class="text-xs text-gray-500" th:text="${doc.nombreArchivoOriginal}"></p>
+                                    </div>
+                                    <!-- Aquí Spring servirá la ruta gracias a MvcConfig -->
+                                    <a th:href="@{'/uploads/documentos/' + ${doc.rutaArchivo}}" target="_blank" class="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100">Ver Archivo</a>
+                                </li>
+                                <li th:if="${#lists.isEmpty(documentos)}" class="py-4 text-sm text-gray-500">No se encontraron documentos.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Evaluación -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm sticky top-6">
+                            <h3 class="text-lg font-semibold border-b pb-2 mb-4">Resolución</h3>
+                            
+                            <div class="mb-6">
+                                <span class="block text-xs text-gray-500 uppercase mb-1">Estado Actual</span>
+                                <span th:text="${solicitud.estado}" 
+                                      th:classappend="${solicitud.estado.name() == 'PENDIENTE' ? 'bg-yellow-100 text-yellow-800' : (solicitud.estado.name() == 'APROBADA' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}"
+                                      class="px-3 py-1 text-sm font-medium rounded-full"></span>
+                            </div>
+
+                            <form th:action="@{/prematriculas/revisar/{id}(id=${solicitud.id})}" method="post" th:if="${solicitud.estado.name() != 'APROBADA'}">
+                                
+                                <div class="space-y-3 mb-6">
+                                    <label class="flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition hover:bg-gray-50" :class="!mostrarMotivo ? 'border-green-500 bg-green-50' : 'border-gray-200'">
+                                        <input type="radio" name="accion" value="APROBAR" class="w-4 h-4 text-green-600" @click="mostrarMotivo = false" required>
+                                        <span class="text-sm font-medium text-gray-900">Aprobar Solicitud</span>
+                                    </label>
+                                    
+                                    <label class="flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition hover:bg-gray-50" :class="mostrarMotivo ? 'border-red-500 bg-red-50' : 'border-gray-200'">
+                                        <input type="radio" name="accion" value="OBSERVAR" class="w-4 h-4 text-red-600" @click="mostrarMotivo = true">
+                                        <span class="text-sm font-medium text-gray-900">Observar (Falta documentación)</span>
+                                    </label>
+                                </div>
+
+                                <!-- Textarea que aparece con Alpine.js si elige Observar -->
+                                <div x-show="mostrarMotivo" x-cloak class="mb-6" x-transition>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Motivo de la Observación <span class="text-red-500">*</span></label>
+                                    <textarea name="motivo" rows="3" :required="mostrarMotivo" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 outline-none" placeholder="Ej. El DNI está borroso..."></textarea>
+                                </div>
+
+                                <button type="submit" class="w-full bg-gray-900 text-white font-medium py-2.5 rounded-lg hover:bg-black transition">Procesar Evaluación</button>
+                            </form>
+                            
+                            <div th:if="${solicitud.estado.name() == 'APROBADA'}" class="p-4 bg-green-50 rounded-lg text-sm text-green-800 text-center">
+                                Esta solicitud ya ha sido aprobada y cerrada.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

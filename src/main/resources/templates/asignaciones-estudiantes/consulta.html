@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Estudiantes por sección | Aula Cristo Rey</title>
+
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/alpine.min.js}"></script>
+
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+
+<body
+        class="bg-slate-50 text-slate-800"
+        x-data="{
+        sidebarToggle: false,
+        darkMode: false,
+        menuToggle: false
+    }"
+>
+
+<div class="flex h-screen overflow-hidden">
+
+    <div th:replace="~{partials/sidebar :: sidebar}"></div>
+
+    <div
+            class="relative flex flex-1 flex-col
+               overflow-y-auto overflow-x-hidden"
+    >
+
+        <div th:replace="~{partials/overlay :: overlay}"></div>
+        <div th:replace="~{partials/header :: header}"></div>
+
+        <main class="p-5 sm:p-8 lg:p-10">
+
+            <div class="mx-auto max-w-7xl space-y-7">
+
+                <!-- Encabezado -->
+                <section
+                        class="rounded-3xl bg-gradient-to-r
+                           from-cyan-700 via-blue-700
+                           to-indigo-700 p-8
+                           text-white shadow-xl"
+                >
+                    <div
+                            class="flex flex-col justify-between gap-5
+                               md:flex-row md:items-center"
+                    >
+                        <div>
+                            <p
+                                    class="text-sm font-semibold uppercase
+                                       tracking-[0.2em] text-cyan-100"
+                            >
+                                Consulta académica
+                            </p>
+
+                            <h1 class="mt-2 text-3xl font-bold">
+                                Estudiantes por grado y sección
+                            </h1>
+
+                            <p
+                                    class="mt-3 max-w-2xl
+                                       text-blue-100"
+                            >
+                                Selecciona la estructura académica para
+                                consultar los estudiantes asignados
+                                durante el período vigente.
+                            </p>
+                        </div>
+
+                        <div
+                                class="flex h-20 w-20 items-center
+                                   justify-center rounded-3xl
+                                   bg-white/20 text-4xl"
+                        >
+                            👥
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Mensaje de error -->
+                <div
+                        th:if="${mensajeError}"
+                        class="rounded-xl border border-red-200
+                           bg-red-50 px-5 py-4
+                           font-medium text-red-800"
+                        th:text="${mensajeError}"
+                ></div>
+
+                <!-- Período vigente -->
+                <section
+                        th:if="${periodoVigente != null}"
+                        class="flex flex-col justify-between gap-4
+                           rounded-2xl border border-emerald-200
+                           bg-emerald-50 p-5
+                           sm:flex-row sm:items-center"
+                >
+                    <div>
+                        <p
+                                class="text-xs font-bold uppercase
+                                   tracking-wider text-emerald-600"
+                        >
+                            Período vigente
+                        </p>
+
+                        <p class="mt-1 font-bold text-emerald-900">
+                            <span
+                                    th:text="${periodoVigente.nombre}"
+                            >
+                                Primer Bimestre
+                            </span>
+
+                            <span> - </span>
+
+                            <span
+                                    th:text="${periodoVigente
+                                    .anioAcademico.anio}"
+                            >
+                                2026
+                            </span>
+                        </p>
+                    </div>
+
+                    <span
+                            class="w-fit rounded-full bg-emerald-200
+                               px-4 py-2 text-sm font-bold
+                               text-emerald-800"
+                    >
+                        ● Activo
+                    </span>
+                </section>
+
+                <!-- Filtros -->
+                <section
+                        class="rounded-2xl border border-slate-200
+                           bg-white shadow-sm"
+                >
+                    <div
+                            class="border-b border-slate-200
+                               px-6 py-5"
+                    >
+                        <h2
+                                class="text-xl font-bold text-slate-900"
+                        >
+                            Seleccionar aula
+                        </h2>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            Los grados y secciones se filtrarán
+                            automáticamente.
+                        </p>
+                    </div>
+
+                    <form
+                            th:action="@{/asignaciones-estudiantes/consultar}"
+                            method="get"
+                            class="p-6"
+                    >
+                        <div
+                                class="grid grid-cols-1 gap-5
+                                   md:grid-cols-3"
+                        >
+
+                            <!-- Nivel -->
+                            <div>
+                                <label
+                                        for="nivelId"
+                                        class="mb-2 block text-sm
+                                           font-semibold text-slate-700"
+                                >
+                                    Nivel
+                                </label>
+
+                                <select
+                                        id="nivelId"
+                                        required
+                                        onchange="cambiarNivel()"
+                                        class="w-full rounded-xl border
+                                           border-slate-300 bg-white
+                                           px-4 py-3 outline-none
+                                           focus:border-blue-500
+                                           focus:ring-4
+                                           focus:ring-blue-100"
+                                >
+                                    <option value="">
+                                        Seleccione un nivel
+                                    </option>
+
+                                    <option
+                                            th:each="nivel : ${niveles}"
+                                            th:value="${nivel.id}"
+                                            th:text="${nivel.nombre}"
+                                            th:selected="${nivelSeleccionadoId != null
+                                            and nivelSeleccionadoId.equals(
+                                                nivel.id
+                                            )}"
+                                    >
+                                        Nivel
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Grado -->
+                            <div>
+                                <label
+                                        for="gradoId"
+                                        class="mb-2 block text-sm
+                                           font-semibold text-slate-700"
+                                >
+                                    Grado
+                                </label>
+
+                                <select
+                                        id="gradoId"
+                                        name="gradoId"
+                                        required
+                                        onchange="cambiarGrado()"
+                                        class="w-full rounded-xl border
+                                           border-slate-300 bg-white
+                                           px-4 py-3 outline-none
+                                           focus:border-blue-500
+                                           focus:ring-4
+                                           focus:ring-blue-100
+                                           disabled:bg-slate-100"
+                                >
+                                    <option value="">
+                                        Seleccione un grado
+                                    </option>
+
+                                    <option
+                                            th:each="grado : ${grados}"
+                                            th:value="${grado.id}"
+                                            th:text="${grado.nombre}"
+                                            th:attr="data-nivel=${grado.nivel.id}"
+                                            th:selected="${gradoSeleccionadoId != null
+                                            and gradoSeleccionadoId.equals(
+                                                grado.id
+                                            )}"
+                                    >
+                                        Grado
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Sección -->
+                            <div>
+                                <label
+                                        for="seccionId"
+                                        class="mb-2 block text-sm
+                                           font-semibold text-slate-700"
+                                >
+                                    Sección
+                                </label>
+
+                                <select
+                                        id="seccionId"
+                                        name="seccionId"
+                                        required
+                                        class="w-full rounded-xl border
+                                           border-slate-300 bg-white
+                                           px-4 py-3 outline-none
+                                           focus:border-blue-500
+                                           focus:ring-4
+                                           focus:ring-blue-100
+                                           disabled:bg-slate-100"
+                                >
+                                    <option value="">
+                                        Seleccione una sección
+                                    </option>
+
+                                    <option
+                                            th:each="seccion : ${secciones}"
+                                            th:value="${seccion.id}"
+                                            th:text="${seccion.nombre}"
+                                            th:attr="data-grado=${seccion.grado.id}"
+                                            th:selected="${seccionSeleccionadaId != null
+                                            and seccionSeleccionadaId.equals(
+                                                seccion.id
+                                            )}"
+                                    >
+                                        Sección
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div
+                                class="mt-6 flex flex-col-reverse
+                                   justify-end gap-3 sm:flex-row"
+                        >
+                            <a
+                                    th:href="@{/asignaciones-estudiantes}"
+                                    class="rounded-xl border
+                                       border-slate-300 px-6 py-3
+                                       text-center font-semibold
+                                       text-slate-700
+                                       hover:bg-slate-50"
+                            >
+                                Asignar estudiantes
+                            </a>
+
+                            <button
+                                    type="submit"
+                                    th:disabled="${periodoVigente == null}"
+                                    class="rounded-xl bg-blue-600
+                                       px-7 py-3 font-semibold
+                                       text-white shadow-md
+                                       hover:bg-blue-700
+                                       disabled:cursor-not-allowed
+                                       disabled:bg-slate-400"
+                            >
+                                Consultar estudiantes
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Resultados -->
+                <section
+                        class="overflow-hidden rounded-2xl border
+                           border-slate-200 bg-white shadow-sm"
+                >
+                    <div
+                            class="flex flex-col justify-between gap-4
+                               border-b border-slate-200
+                               px-6 py-5 sm:flex-row
+                               sm:items-center"
+                    >
+                        <div>
+                            <h2
+                                    class="text-xl font-bold
+                                       text-slate-900"
+                            >
+                                Estudiantes encontrados
+                            </h2>
+
+                            <p
+                                    th:if="${consultaRealizada}"
+                                    class="mt-1 text-sm text-slate-500"
+                            >
+                                Resultado de la consulta académica.
+                            </p>
+
+                            <p
+                                    th:unless="${consultaRealizada}"
+                                    class="mt-1 text-sm text-slate-500"
+                            >
+                                Selecciona un grado y una sección.
+                            </p>
+                        </div>
+
+                        <div
+                                class="rounded-xl bg-blue-50
+                                   px-5 py-3 text-center"
+                        >
+                            <p
+                                    class="text-xs font-bold uppercase
+                                       text-blue-500"
+                            >
+                                Total
+                            </p>
+
+                            <p
+                                    class="text-2xl font-bold text-blue-700"
+                                    th:text="${#lists.size(resultados)}"
+                            >
+                                0
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor con fragmento para actualización asíncrona -->
+                    <div  class="overflow-x-auto">
+                        <table id="resultadosContainer" th:fragment="resultadosContainer" class="w-full min-w-[850px]">
+
+                            <thead class="bg-slate-50">
+                            <tr
+                                    class="text-left text-xs font-bold
+                                       uppercase tracking-wider
+                                       text-slate-500"
+                            >
+                                <th class="px-6 py-4">Código</th>
+                                <th class="px-6 py-4">Estudiante</th>
+                                <th class="px-6 py-4">DNI</th>
+                                <th class="px-6 py-4">Nivel</th>
+                                <th class="px-6 py-4">Grado</th>
+                                <th class="px-6 py-4">Sección</th>
+                                <th class="px-6 py-4">Estado</th>
+                            </tr>
+                            </thead>
+
+                            <tbody class="divide-y divide-slate-100">
+
+                            <tr
+                                    th:each="asignacion : ${resultados}"
+                                    class="transition hover:bg-blue-50/50"
+                            >
+                                <td
+                                        class="px-6 py-4 text-sm
+                                           font-bold text-blue-700"
+                                        th:text="${asignacion.estudiante.codigo}"
+                                >
+                                    EST-001
+                                </td>
+
+                                <td class="px-6 py-4">
+                                    <p
+                                            class="font-semibold
+                                               text-slate-900"
+                                            th:text="${asignacion.estudiante
+                                            .apellidos
+                                            + ', '
+                                            + asignacion.estudiante.nombres}"
+                                    >
+                                        Estudiante
+                                    </p>
+
+                                    <p
+                                            class="text-xs text-slate-500"
+                                            th:text="${asignacion.estudiante.correo}"
+                                    >
+                                        correo@ejemplo.com
+                                    </p>
+                                </td>
+
+                                <td
+                                        class="px-6 py-4 text-sm"
+                                        th:text="${asignacion.estudiante.dni}"
+                                >
+                                    12345678
+                                </td>
+
+                                <td
+                                        class="px-6 py-4 text-sm"
+                                        th:text="${asignacion.grado.nivel.nombre}"
+                                >
+                                    Primaria
+                                </td>
+
+                                <td
+                                        class="px-6 py-4 text-sm
+                                           font-semibold"
+                                        th:text="${asignacion.grado.nombre}"
+                                >
+                                    Primero
+                                </td>
+
+                                <td class="px-6 py-4">
+                                    <span
+                                            class="rounded-lg bg-indigo-100
+                                               px-3 py-1 text-sm
+                                               font-bold text-indigo-700"
+                                            th:text="${asignacion.seccion.nombre}"
+                                    >
+                                        A
+                                    </span>
+                                </td>
+
+                                <td class="px-6 py-4">
+                                    <span
+                                            class="rounded-full
+                                               bg-emerald-100 px-3 py-1
+                                               text-xs font-bold
+                                               text-emerald-700"
+                                    >
+                                        Activo
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr
+                                    th:if="${consultaRealizada
+                                    and #lists.isEmpty(resultados)}"
+                            >
+                                <td
+                                        colspan="7"
+                                        class="px-6 py-14 text-center
+                                           text-slate-500"
+                                >
+                                    No existen estudiantes asignados al
+                                    grado y sección seleccionados.
+                                </td>
+                            </tr>
+
+                            <tr th:unless="${consultaRealizada}">
+                                <td
+                                        colspan="7"
+                                        class="px-6 py-14 text-center
+                                           text-slate-500"
+                                >
+                                    Utiliza los filtros para realizar
+                                    una consulta.
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    function filtrarOpciones(
+        select,
+        atributo,
+        valor
+    ) {
+        Array.from(select.options).forEach(
+            function (option, index) {
+
+                if (index === 0) {
+                    option.hidden = false;
+                    option.disabled = false;
+                    return;
+                }
+
+                const mostrar =
+                    option.dataset[atributo] === valor;
+
+                option.hidden = !mostrar;
+                option.disabled = !mostrar;
+            }
+        );
+    }
+
+    function cambiarNivel() {
+        const nivelId =
+            document.getElementById("nivelId").value;
+
+        const gradoSelect =
+            document.getElementById("gradoId");
+
+        const seccionSelect =
+            document.getElementById("seccionId");
+
+        gradoSelect.value = "";
+        seccionSelect.value = "";
+
+        gradoSelect.disabled = nivelId === "";
+        seccionSelect.disabled = true;
+
+        filtrarOpciones(
+            gradoSelect,
+            "nivel",
+            nivelId
+        );
+    }
+
+    function cambiarGrado() {
+        const gradoId =
+            document.getElementById("gradoId").value;
+
+        const seccionSelect =
+            document.getElementById("seccionId");
+
+        seccionSelect.value = "";
+        seccionSelect.disabled = gradoId === "";
+
+        filtrarOpciones(
+            seccionSelect,
+            "grado",
+            gradoId
+        );
+    }
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const nivelId =
+                document.getElementById("nivelId").value;
+
+            const gradoSelect =
+                document.getElementById("gradoId");
+
+            const gradoId = gradoSelect.value;
+
+            const seccionSelect =
+                document.getElementById("seccionId");
+
+            gradoSelect.disabled = nivelId === "";
+
+            filtrarOpciones(
+                gradoSelect,
+                "nivel",
+                nivelId
+            );
+
+            seccionSelect.disabled = gradoId === "";
+
+            filtrarOpciones(
+                seccionSelect,
+                "grado",
+                gradoId
+            );
+        }
+    );
+
+    // Actualización asíncrona de consulta por sección cada 3 segundos conservando parámetros de búsqueda
+    setInterval(function () {
+        const activeElement = document.activeElement;
+        const isInteracting = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT' || activeElement.tagName === 'TEXTAREA');
+
+        if (!isInteracting) {
+            const urlParams = window.location.search;
+            fetch('/asignaciones-estudiantes/parcial/consulta' + urlParams)
+                .then(res => res.text())
+                .then(html => {
+                    if (html.trim() !== '') {
+                        const tabla = document.getElementById('resultadosContainer');
+                        if (tabla) {
+                            const scrollContainer = tabla.closest('.overflow-x-auto');
+                            const scrollPos = scrollContainer ? scrollContainer.scrollLeft : 0;
+
+                            tabla.outerHTML = html;
+
+                            const nuevaTabla = document.getElementById('resultadosContainer');
+                            const nuevoContainer = nuevaTabla ? nuevaTabla.closest('.overflow-x-auto') : scrollContainer;
+                            if (nuevoContainer) {
+                                nuevoContainer.scrollLeft = scrollPos;
+                            }
+                        }
+                    }
+                })
+                .catch(err => console.error('Error al actualizar consulta de estudiantes:', err));
+        }
+    }, 3000);
+</script>
+
+</body>
+</html>

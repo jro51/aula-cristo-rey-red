@@ -1,0 +1,14 @@
+INSTALACION (todo en tu PC con internet, UNA sola vez)
+
+1. Copia el contenido de esta carpeta a la RAIZ de tu proyecto Spring Boot
+   (donde esta pom.xml). Se mezcla con tu carpeta src/ existente.
+2. Descarga tailwindcss-windows-x64.exe (version 4.x) de
+   https://github.com/tailwindlabs/tailwindcss/releases
+   y ponlo en la raiz del proyecto, junto a compilar-css.bat.
+3. Doble clic en compilar-css.bat  ->  genera src/main/resources/static/css/app.css
+   (repite cada vez que cambies clases en tus plantillas).
+4. En TODAS tus plantillas Thymeleaf, deja solo estas referencias:
+     <link rel="stylesheet" th:href="@{/css/app.css}">
+     <script defer th:src="@{/js/alpine.min.js}"></script>
+   y elimina las lineas de tailwind.min.css / style.css / CDNs.
+5. Empaqueta con Maven (el .jar ya lleva todo dentro).

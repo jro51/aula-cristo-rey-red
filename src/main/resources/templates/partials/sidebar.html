@@ -1,0 +1,207 @@
+<aside
+  th:fragment="sidebar"
+  class="sidebar fixed left-0 top-0 z-9999 flex h-screen w-[290px] flex-col overflow-y-hidden border-r border-gray-200 bg-white px-5 lg:static lg:translate-x-0"
+>
+  <div class="flex items-center gap-2 pt-8 pb-7">
+    <a href="/"
+      ><h2 class="text-2xl font-bold text-blue-600">Aula Cristo Rey</h2></a
+    >
+  </div>
+
+  <div
+    class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar"
+  >
+    <nav>
+      <div>
+        <h3 class="mb-4 text-xs uppercase text-gray-400">Académico</h3>
+        <ul class="flex flex-col gap-2 mb-6">
+    <!-- ============================================== -->
+    <!-- 1. PRINCIPAL (Todos los roles) -->
+    <!-- ============================================== -->
+    <li>
+        <a href="/" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            Panel Principal
+        </a>
+    </li>
+
+    <!-- ============================================== -->
+    <!-- 2. ADMISIÓN Y FAMILIA (Admin y Secretaria) -->
+    <!-- ============================================== -->
+    <th:block th:if="${session.rolUsuario == 'ADMINISTRADOR' or session.rolUsuario == 'DIRECCION_GENERAL' or session.rolUsuario == 'SUBDIRECCION' or session.rolUsuario == 'SECRETARIA'}">
+        <li>
+            <div class="mt-4 mb-1 px-4 text-xs uppercase text-gray-400 font-semibold tracking-wider">Admisión y Familia</div>
+        </li>
+        <li>
+            <a href="/vinculaciones/nueva" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                Vincular Familia
+            </a>
+        </li>
+        <li>
+            <a href="/prematriculas/nueva" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Nueva Prematrícula
+            </a>
+        </li>
+        <li>
+            <a href="/prematriculas/lista" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                Bandeja de Solicitudes
+            </a>
+        </li>
+    </th:block>
+
+    <!-- ============================================== -->
+    <!-- 3. DIRECTORIO (Admin y Secretaria) -->
+    <!-- ============================================== -->
+    <th:block th:if="${session.rolUsuario == 'ADMINISTRADOR' or session.rolUsuario == 'DIRECCION_GENERAL' or session.rolUsuario == 'SUBDIRECCION' or session.rolUsuario == 'SECRETARIA'}">
+        <li>
+            <div class="mt-4 mb-1 px-4 text-xs uppercase text-gray-400 font-semibold tracking-wider">Directorio</div>
+        </li>
+        <li>
+            <a href="/estudiantes" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                Estudiantes
+            </a>
+        </li>
+        <li>
+            <a href="/apoderados" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                Apoderados
+            </a>
+        </li>
+        <li>
+            <a href="/profesores" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                Profesores
+            </a>
+        </li>
+    </th:block>
+
+    <!-- ============================================== -->
+    <!-- 4. GESTIÓN ACADÉMICA (Admin y Secretaria) -->
+    <!-- ============================================== -->
+    <th:block th:if="${session.rolUsuario == 'ADMINISTRADOR' or session.rolUsuario == 'DIRECCION_GENERAL' or session.rolUsuario == 'SUBDIRECCION' or session.rolUsuario == 'SECRETARIA'}">
+        <li>
+            <div class="mt-4 mb-1 px-4 text-xs uppercase text-gray-400 font-semibold tracking-wider">Gestión Académica</div>
+        </li>
+        <li>
+            <a href="/cursos" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                Cursos
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/asignaciones-estudiantes}" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                Asignación académica
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/asignaciones-estudiantes/consultar}" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Estudiantes por sección
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/asignaciones-docente}" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                Asignar docentes
+            </a>
+        </li>
+        <li>
+            <a href="/academico" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Administración académica
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/academico/periodos}" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Periodos académicos
+            </a>
+        </li>
+    </th:block>
+
+    <!-- ============================================== -->
+    <!-- 5. AULA VIRTUAL (Admin, Secretaria, Docente y Estudiante) -->
+    <!-- ============================================== -->
+    <th:block th:if="${session.rolUsuario == 'ADMINISTRADOR' or session.rolUsuario == 'DIRECCION_GENERAL' or session.rolUsuario == 'SUBDIRECCION' or session.rolUsuario == 'SECRETARIA' or session.rolUsuario == 'DOCENTE' or session.rolUsuario == 'DOCENTES_TUTORES' or session.rolUsuario == 'DOCENTES_ASESORES_POR_AREA' or session.rolUsuario == 'ESTUDIANTE'}">
+        <li>
+            <div class="mt-4 mb-1 px-4 text-xs uppercase text-gray-400 font-semibold tracking-wider">Aula Virtual</div>
+        </li>
+        
+        <!-- Mis Cursos: Ruta para Docentes, Admin y Secretaria -->
+        <li th:if="${session.rolUsuario == 'ADMINISTRADOR' or session.rolUsuario == 'DIRECCION_GENERAL' or session.rolUsuario == 'SUBDIRECCION' or session.rolUsuario == 'SECRETARIA' or session.rolUsuario == 'DOCENTE' or session.rolUsuario == 'DOCENTES_TUTORES' or session.rolUsuario == 'DOCENTES_ASESORES_POR_AREA'}">
+            <a th:href="@{/asignaciones-docente/mis-cursos}" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                Mis cursos
+            </a>
+        </li>
+
+        <!-- Mis Cursos: Ruta EXCLUSIVA para el Estudiante -->
+        <li th:if="${session.rolUsuario == 'ESTUDIANTE'}">
+            <!-- Nota: Asegúrate de que esta URL coincida con el @GetMapping en tu controlador -->
+            <a th:href="@{/estudiante/mis-cursos}" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                Mis cursos
+            </a>
+        </li>
+
+        <!-- Tareas: Visible solo para Admin y Secretaria -->
+        <li th:if="${session.rolUsuario == 'ADMINISTRADOR' or session.rolUsuario == 'DIRECCION_GENERAL' or session.rolUsuario == 'SUBDIRECCION' or session.rolUsuario == 'SECRETARIA' or session.rolUsuario == 'DOCENTE' or session.rolUsuario == 'DOCENTES_TUTORES' or session.rolUsuario == 'DOCENTES_ASESORES_POR_AREA'}">
+            <a href="/tareas" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                Tareas
+            </a>
+        </li>
+    </th:block>
+
+    <!-- ============================================== -->
+    <!-- 6. TESORERÍA (Admin y Secretaria) -->
+    <!-- ============================================== -->
+    <th:block th:if="${session.rolUsuario == 'ADMINISTRADOR' or session.rolUsuario == 'DIRECCION_GENERAL' or session.rolUsuario == 'TESORERIA'}">
+        <li>
+            <div class="mt-4 mb-1 px-4 text-xs uppercase text-gray-400 font-semibold tracking-wider">Tesorería</div>
+        </li>
+        <li>
+            <a href="/pagos" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                Pagos
+            </a>
+        </li>
+        <li>
+            <a href="/beneficios" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path></svg>
+                Beneficios
+            </a>
+        </li>
+    </th:block>
+
+    <!-- ============================================== -->
+    <!-- 7. REPORTES Y SISTEMA -->
+    <!-- ============================================== -->
+    <th:block th:if="${session.rolUsuario == 'ADMINISTRADOR' or session.rolUsuario == 'DIRECCION_GENERAL' or session.rolUsuario == 'SECRETARIA'}">
+        <li>
+            <div class="mt-4 mb-1 px-4 text-xs uppercase text-gray-400 font-semibold tracking-wider">Reportes y Sistema</div>
+        </li>
+        <li>
+            <a href="/reportes/estudiantes" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Reportes
+            </a>
+        </li>
+        <!-- Oculto para la Secretaria, visible SOLO para Administrador -->
+        <li th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <a href="/usuarios" class="flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                Usuarios
+            </a>
+        </li>
+    </th:block>
+</ul>
+      </div>
+    </nav>
+  </div>
+</aside>

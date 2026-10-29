@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Becas y Descuentos - Aula Cristo Rey</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h2 class="mb-4">Gestión de Becas, Medias Becas y Descuentos</h2>
+
+    <!-- Formulario de Registro (AVCR-204) -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">Registrar Beneficio o Descuento</div>
+        <div class="card-body">
+            <form th:action="@{/beneficios/guardar}" method="post">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Estudiante</label>
+                        <select name="estudianteId" class="form-select" required>
+                            <option value="">Seleccione un estudiante...</option>
+                            <option th:each="est : ${estudiantes}"
+                                    th:value="${est.id}"
+                                    th:text="${est.apellidos + ', ' + est.nombres + ' (' + est.codigo + ')'}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Tipo de Beneficio</label>
+                        <select name="tipo" class="form-select" required>
+                            <option value="Media Beca (50%)">Media Beca (50%)</option>
+                            <option value="Beca Completa (100%)">Beca Completa (100%)</option>
+                            <option value="Descuento Fijo (S/ 50)">Descuento Fijo (S/ 50)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Valor (%) o (S/)</label>
+                        <input type="number" step="0.01" name="valor" class="form-control" placeholder="Ej. 50.0" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Período / Año</label>
+                        <input type="text" name="anioPeriodo" class="form-control" value="2026" required>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success w-100">Guardar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Consulta (AVCR-204) -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white">Listado de Beneficios Aplicados</div>
+        <!-- Contenedor con fragmento para actualización asíncrona -->
+        <div id="tablaBeneficiosContainer" th:fragment="tablaBeneficiosContainer" class="card-body overflow-x-auto">
+            <table class="table table-striped align-middle min-w-[700px]">
+                <thead>
+                <tr>
+                    <th>Estudiante</th>
+                    <th>Tipo de Beneficio</th>
+                    <th>Valor</th>
+                    <th>Período</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="b : ${beneficiosEstudiante}">
+                    <td th:text="${b.estudiante.apellidos + ', ' + b.estudiante.nombres}">Apellidos, Nombres</td>
+                    <td th:text="${b.tipo}">Tipo</td>
+                    <td th:text="${b.valor}">Valor</td>
+                    <td th:text="${b.anioPeriodo}">2026</td>
+                    <td>
+                        <a th:href="@{/beneficios/eliminar/{id}(id=${b.id}, estudianteId=${b.estudiante?.id})}"
+                           class="btn btn-danger btn-sm">Eliminar</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(beneficiosEstudiante)}">
+                    <td colspan="5" class="text-center text-muted">No hay beneficios registrados.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Actualización inteligente en segundo plano cada 3 segundos sin recargar la página completa
+    setInterval(function () {
+        const activeElement = document.activeElement;
+        const isInteracting = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT' || activeElement.tagName === 'TEXTAREA');
+
+        if (!isInteracting) {
+            const urlParams = window.location.search;
+            fetch('/beneficios/parcial' + urlParams)
+                .then(res => res.text())
+                .then(html => {
+                    if (html.trim() !== '') {
+                        const container = document.getElementById('tablaBeneficiosContainer');
+                        if (container) {
+                            // 1. Guardar la posición actual del scroll horizontal
+                            const scrollPos = container.scrollLeft;
+
+                            // 2. Actualizar el contenido HTML
+                            container.innerHTML = html;
+
+                            // 3. Restaurar la posición del scroll para que no se mueva
+                            container.scrollLeft = scrollPos;
+                        }
+                    }
+                })
+                .catch(err => console.error('Error al actualizar beneficios en tiempo real:', err));
+        }
+    }, 3000);
+</script>
+</body>
+</html>

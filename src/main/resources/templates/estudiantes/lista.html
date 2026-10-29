@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>Listado de Estudiantes | Aula Virtual</title>
+
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/alpine.min.js}"></script>
+
+    <link href="/css/style.css" rel="stylesheet"/>
+</head>
+
+<body
+    class="bg-gray-50 text-gray-800"
+    x-data="{
+        sidebarToggle: false,
+        darkMode: false,
+        menuToggle: false
+    }"
+>
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- Menú lateral -->
+    <div th:replace="~{partials/sidebar :: sidebar}"></div>
+
+    <div
+        class="relative flex flex-1 flex-col
+               overflow-y-auto overflow-x-hidden"
+    >
+
+        <div th:replace="~{partials/overlay :: overlay}"></div>
+        <div th:replace="~{partials/header :: header}"></div>
+
+        <main class="space-y-6 p-6 sm:p-10">
+
+            <!-- Título y botones -->
+            <div
+                class="flex flex-col gap-4
+                       sm:flex-row sm:items-center
+                       sm:justify-between"
+            >
+
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        Estudiantes registrados
+                    </h1>
+
+                    <p class="mt-1 text-sm text-gray-500">
+                        Consulta y filtra los estudiantes registrados.
+                    </p>
+                </div>
+
+                <div class="flex flex-col gap-3 sm:flex-row">
+
+                    <a
+                        th:href="@{/estudiantes/ficha}"
+                        class="rounded-lg border border-blue-600
+                               bg-white px-5 py-2.5 text-center
+                               text-sm font-medium text-blue-600
+                               hover:bg-blue-50"
+                    >
+                        Buscar estudiante
+                    </a>
+
+                    <a
+                        th:href="@{/estudiantes/nuevo}"
+                        class="rounded-lg bg-blue-600
+                               px-5 py-2.5 text-center text-sm
+                               font-medium text-white
+                               hover:bg-blue-700"
+                    >
+                        Registrar estudiante
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- AVCR-98: Filtros básicos -->
+            <section
+                class="rounded-xl border border-gray-200
+                       bg-white p-5 shadow-sm"
+            >
+
+                <form
+                    th:action="@{/estudiantes}"
+                    method="get"
+                    class="grid grid-cols-1 gap-4
+                           md:grid-cols-2 lg:grid-cols-5"
+                >
+
+                    <!-- Texto -->
+                    <div class="lg:col-span-2">
+
+                        <label
+                            for="texto"
+                            class="mb-2 block text-sm
+                                   font-medium text-gray-700"
+                        >
+                            Buscar estudiante
+                        </label>
+
+                        <input
+                            id="texto"
+                            name="texto"
+                            type="text"
+                            th:value="${texto}"
+                            placeholder="Código, DNI, nombres o apellidos"
+                            class="w-full rounded-lg border
+                                   border-gray-300 px-4 py-2.5
+                                   text-sm focus:border-blue-500
+                                   focus:outline-none focus:ring-1
+                                   focus:ring-blue-500"
+                        />
+
+                    </div>
+
+                    <!-- Grado -->
+                    <div>
+
+                        <label
+                            for="grado"
+                            class="mb-2 block text-sm
+                                   font-medium text-gray-700"
+                        >
+                            Grado
+                        </label>
+
+                        <select
+                            id="grado"
+                            name="grado"
+                            class="w-full rounded-lg border
+                                   border-gray-300 bg-white
+                                   px-4 py-2.5 text-sm
+                                   focus:border-blue-500
+                                   focus:outline-none"
+                        >
+
+                            <option value="">Todos</option>
+
+                            <option
+                                value="1ro Secundaria"
+                                th:selected="${gradoSeleccionado
+                                == '1ro Secundaria'}"
+                            >
+                                1ro Secundaria
+                            </option>
+
+                            <option
+                                value="2do Secundaria"
+                                th:selected="${gradoSeleccionado
+                                == '2do Secundaria'}"
+                            >
+                                2do Secundaria
+                            </option>
+
+                            <option
+                                value="3ro Secundaria"
+                                th:selected="${gradoSeleccionado
+                                == '3ro Secundaria'}"
+                            >
+                                3ro Secundaria
+                            </option>
+
+                            <option
+                                value="4to Secundaria"
+                                th:selected="${gradoSeleccionado
+                                == '4to Secundaria'}"
+                            >
+                                4to Secundaria
+                            </option>
+
+                            <option
+                                value="5to Secundaria"
+                                th:selected="${gradoSeleccionado
+                                == '5to Secundaria'}"
+                            >
+                                5to Secundaria
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- Sección -->
+                    <div>
+
+                        <label
+                            for="seccion"
+                            class="mb-2 block text-sm
+                                   font-medium text-gray-700"
+                        >
+                            Sección
+                        </label>
+
+                        <select
+                            id="seccion"
+                            name="seccion"
+                            class="w-full rounded-lg border
+                                   border-gray-300 bg-white
+                                   px-4 py-2.5 text-sm
+                                   focus:border-blue-500
+                                   focus:outline-none"
+                        >
+
+                            <option value="">Todas</option>
+
+                            <option
+                                value="A"
+                                th:selected="${seccionSeleccionada == 'A'}"
+                            >
+                                Sección A
+                            </option>
+
+                            <option
+                                value="B"
+                                th:selected="${seccionSeleccionada == 'B'}"
+                            >
+                                Sección B
+                            </option>
+
+                            <option
+                                value="C"
+                                th:selected="${seccionSeleccionada == 'C'}"
+                            >
+                                Sección C
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- Estado -->
+                    <div>
+
+                        <label
+                            for="activo"
+                            class="mb-2 block text-sm
+                                   font-medium text-gray-700"
+                        >
+                            Estado
+                        </label>
+
+                        <select
+                            id="activo"
+                            name="activo"
+                            class="w-full rounded-lg border
+                                   border-gray-300 bg-white
+                                   px-4 py-2.5 text-sm
+                                   focus:border-blue-500
+                                   focus:outline-none"
+                        >
+
+                            <option value="">Todos</option>
+
+                            <option
+                                value="true"
+                                th:selected="${estadoSeleccionado != null
+                                and estadoSeleccionado == true}"
+                            >
+                                Activos
+                            </option>
+
+                            <option
+                                value="false"
+                                th:selected="${estadoSeleccionado != null
+                                and estadoSeleccionado == false}"
+                            >
+                                Inactivos
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- Botones de filtros -->
+                    <div
+                        class="flex flex-col gap-3
+                               md:col-span-2 lg:col-span-5
+                               sm:flex-row sm:justify-end"
+                    >
+
+                        <a
+                            th:href="@{/estudiantes}"
+                            class="rounded-lg border border-gray-300
+                                   bg-white px-5 py-2.5 text-center
+                                   text-sm font-medium text-gray-700
+                                   hover:bg-gray-100"
+                        >
+                            Limpiar filtros
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="rounded-lg bg-blue-600
+                                   px-6 py-2.5 text-sm
+                                   font-medium text-white
+                                   hover:bg-blue-700"
+                        >
+                            Aplicar filtros
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+            <!-- Tabla -->
+            <section class="overflow-hidden rounded-xl border
+                       border-gray-200 bg-white shadow-sm"
+            >
+                <div id="contenedor-tabla" class="overflow-x-auto">
+                    <div th:replace="~{estudiantes/tabla-estudiantes :: tablaEstudiantes}"></div>
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+<script>
+    setInterval(function () {
+        const activeElement = document.activeElement;
+        const isInteracting = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT' || activeElement.tagName === 'TEXTAREA');
+
+        if (!isInteracting) {
+            const urlParams = window.location.search;
+
+            fetch('/estudiantes/parcial' + urlParams)
+                .then(response => response.text())
+                .then(html => {
+                    if (html.trim() !== '') {
+                        const container = document.getElementById('contenedor-tabla');
+                        if (container) {
+                            // 1. Guardar la posición actual del scroll horizontal
+                            const scrollPos = container.scrollLeft;
+
+                            // 2. Inyectar el nuevo HTML del fragmento
+                            container.innerHTML = html;
+
+                            // 3. Restaurar la barra de desplazamiento en su sitio exacto
+                            container.scrollLeft = scrollPos;
+                        }
+                    }
+                })
+                .catch(error => console.error('Error al actualizar datos en tiempo real:', error));
+        }
+    }, 3000); // Se ejecuta cada 5 segundos de forma invisible y fluida
+</script>
+</body>
+</html>

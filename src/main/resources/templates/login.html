@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Sesión | Aula Virtual Cristo Rey</title>
+  <!-- Asegúrate de que esta ruta apunte correctamente a tu CSS compilado -->
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+  <script defer th:src="@{/js/alpine.min.js}"></script>
+  <style>
+    [x-cloak] {
+      display: none !important;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in-up {
+      animation: fadeInUp 0.5s ease-out both;
+    }
+    @keyframes shake {
+      10%, 90% { transform: translateX(-1px); }
+      20%, 80% { transform: translateX(2px); }
+      30%, 50%, 70% { transform: translateX(-4px); }
+      40%, 60% { transform: translateX(4px); }
+    }
+    .animate-shake {
+      animation: shake 0.5s ease-in-out;
+    }
+    .hero-bg {
+      background-image: linear-gradient(
+          180deg,
+          rgba(11, 22, 74, 0.65) 0%,
+          rgba(11, 22, 74, 0.3) 26%,
+          rgba(11, 22, 74, 0.4) 58%,
+          rgba(150, 20, 30, 0.58) 100%
+        ),
+        url("/images/colegio/cristo-rey-hero.jpg");
+      background-size: cover;
+      background-position: center 78%;
+    }
+    .input-pill:focus-within .input-icon {
+      color: #1e3a8a;
+    }
+    .input-pill:focus-within {
+      border-color: #1e3a8a;
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+  </style>
+</head>
+  <body class="bg-gray-50">
+    <div
+      class="relative flex w-full min-h-screen lg:h-screen lg:flex-row flex-col"
+    >
+      <!-- ===== Panel izquierdo: Formulario ===== -->
+      <div
+        class="relative flex flex-col flex-1 w-full lg:w-[34%] lg:flex-none bg-white overflow-hidden z-10"
+      >
+        <!-- Escudo de fondo tipo marca de agua -->
+        <img
+          th:src="@{/images/colegio/cristoreal.jpg}"
+          alt=""
+          aria-hidden="true"
+          class="pointer-events-none select-none absolute top-1/2 -translate-y-1/2 -left-1/4 h-[120%] w-auto max-w-none opacity-15 grayscale z-0"
+        />
+
+        <div
+          class="relative z-10 flex flex-col flex-1 justify-center px-6 sm:px-10 lg:px-12 py-8"
+        >
+          <div
+            class="w-full max-w-sm mx-auto fade-in-up"
+            th:classappend="${error} ? 'animate-shake' : ''"
+          >
+            <!-- Logo y título -->
+            <div class="flex flex-col items-center mb-7">
+              <img
+                th:src="@{/images/colegio/logo-cristo-rey.png}"
+                alt="Escudo Colegio Cristo Rey"
+                class="w-32 h-32 object-contain mb-4 drop-shadow-md transition-transform duration-300 hover:scale-105"
+              />
+              <h1 class="text-xl font-bold text-[#0b164a] text-center">
+                Aula Virtual Cristo Rey
+              </h1>
+              <p class="text-sm text-gray-500 text-center mt-1">
+                Ingresa tus credenciales para acceder al sistema
+              </p>
+            </div>
+
+            <!-- Mensaje de error -->
+            <div
+              th:if="${error}"
+              class="mb-4 flex items-start gap-2 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 fade-in-up"
+            >
+              <svg
+                class="w-5 h-5 flex-shrink-0 mt-0.5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm-.75-11a.75.75 0 011.5 0v4a.75.75 0 01-1.5 0V7zm.75 8.25a.9.9 0 100-1.8.9.9 0 000 1.8z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <p th:text="${error}"></p>
+            </div>
+
+            <form th:action="@{/login}" method="post" class="space-y-4">
+              <!-- Usuario -->
+              <div
+                class="input-pill flex items-center gap-3 h-11 w-full rounded-full border border-gray-300 bg-white px-4 transition-all duration-200"
+              >
+                <svg
+                  class="input-icon w-[18px] h-[18px] text-gray-400 flex-shrink-0 transition-colors"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="Usuario"
+                  required
+                  autofocus
+                  class="h-full w-full bg-transparent text-sm text-gray-800 placeholder:text-gray-400 outline-none"
+                />
+              </div>
+
+              <!-- Contraseña -->
+              <div x-data="{ showPassword: false }">
+                <div
+                  class="input-pill flex items-center gap-3 h-11 w-full rounded-full border border-gray-300 bg-white px-4 transition-all duration-200"
+                >
+                  <svg
+                    class="input-icon w-[18px] h-[18px] text-gray-400 flex-shrink-0 transition-colors"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0110 0v4" />
+                  </svg>
+                  <input
+                    :type="showPassword ? 'text' : 'password'"
+                    id="password"
+                    name="password"
+                    placeholder="Contraseña"
+                    required
+                    class="h-full w-full bg-transparent text-sm text-gray-800 placeholder:text-gray-400 outline-none"
+                  />
+                  <button
+                    type="button"
+                    @click="showPassword = !showPassword"
+                    class="text-gray-400 hover:text-gray-600 transition flex-shrink-0"
+                    tabindex="-1"
+                  >
+                    <svg
+                      x-show="!showPassword"
+                      class="w-[18px] h-[18px]"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <svg
+                      x-show="showPassword"
+                      x-cloak
+                      class="w-[18px] h-[18px]"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
+                      />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Recordarme + Olvidaste contraseña -->
+              <div
+                class="flex items-center justify-between"
+                x-data="{ remember: false }"
+              >
+                <label
+                  class="flex items-center gap-2 text-xs text-gray-600 cursor-pointer select-none"
+                >
+                  <div class="relative">
+                    <input
+                      type="checkbox"
+                      name="remember"
+                      class="sr-only"
+                      @change="remember = !remember"
+                    />
+                    <div
+                      :class="remember ? 'bg-[#0b164a] border-[#0b164a]' : 'bg-white border-gray-300'"
+                      class="flex h-4 w-4 items-center justify-center rounded border transition"
+                    >
+                      <svg
+                        x-show="remember"
+                        class="w-2.5 h-2.5"
+                        viewBox="0 0 14 14"
+                        fill="none"
+                      >
+                        <path
+                          d="M11.7 3.5L5.2 9.9 2.3 7"
+                          stroke="white"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                  Recordarme
+                </label>
+                <a
+                  href="#"
+                  class="text-xs font-medium text-[#0b164a] hover:text-blue-800 hover:underline transition-colors"
+                >
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
+
+              <!-- Botón -->
+              <button
+                type="submit"
+                class="group flex w-full items-center justify-center gap-2 rounded-full bg-[#0b164a] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-[#162060] hover:shadow-md active:scale-[0.98]"
+              >
+                Iniciar sesión
+                <svg
+                  class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L13.586 11H4a1 1 0 110-2h9.586l-3.293-3.293a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+            </form>
+
+            <!-- Redes sociales + Copyright -->
+            <div class="mt-8 flex flex-col items-center gap-3">
+              <div class="flex items-center gap-3">
+                <a
+                  href="https://www.instagram.com/cristoreyhuacho/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram Colegio Cristo Rey"
+                  class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-600 hover:text-red-600 hover:shadow-md"
+                >
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.97.24 2.43.4.61.24 1.05.52 1.51.98.46.46.74.9.98 1.51.16.46.35 1.26.4 2.43.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.24 1.97-.4 2.43-.24.61-.52 1.05-.98 1.51-.46.46-.9.74-1.51.98-.46.16-1.26.35-2.43.4-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.97-.24-2.43-.4a4.1 4.1 0 01-1.51-.98 4.1 4.1 0 01-.98-1.51c-.16-.46-.35-1.26-.4-2.43C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.24-1.97.4-2.43.24-.61.52-1.05.98-1.51.46-.46.9-.74 1.51-.98.46-.16 1.26-.35 2.43-.4C8.42 2.21 8.8 2.2 12 2.2zm0 3.05a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zm0 11.13a4.38 4.38 0 110-8.76 4.38 4.38 0 010 8.76zm7.02-11.4a1.58 1.58 0 11-3.15 0 1.58 1.58 0 013.15 0z"
+                    />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.facebook.com/CristoReyHuacho"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook Colegio Cristo Rey"
+                  class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-800 hover:text-blue-800 hover:shadow-md"
+                >
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M13.5 22v-8.4h2.8l.4-3.3h-3.2V8.1c0-.95.26-1.6 1.63-1.6H17V3.5c-.29-.04-1.27-.13-2.42-.13-2.4 0-4.04 1.46-4.04 4.15v2.32H8v3.3h2.54V22h2.96z"
+                    />
+                  </svg>
+                </a>
+              </div>
+              <p class="text-center text-[11px] text-gray-400 mt-1">
+                &copy; 2026 Colegio Cristo Rey — Huacho. Todos los derechos
+                reservados.
+              </p>
+              <div class="flex items-center gap-3">
+                <span class="h-px w-6 bg-gray-200"></span>
+                <span
+                  class="text-[9px] font-semibold tracking-[0.2em] text-gray-400"
+                  >CIENCIA · HONOR · TECNOLOGÍA</span
+                >
+                <span class="h-px w-6 bg-gray-200"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Curva divisoria tipo paréntesis "(" (solo escritorio) ===== -->
+      <div
+        class="hidden lg:block absolute inset-y-0 z-20 pointer-events-none"
+        style="left: calc(34% - 40px); width: 120px"
+      >
+        <svg
+          class="w-full h-full"
+          viewBox="0 0 120 1000"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <!-- Relleno blanco a la izquierda de la curva -->
+          <path
+            fill="white"
+            d="M0,0 L40,0
+               Q 95,500 40,1000
+               L0,1000 Z"
+          />
+          <!-- Línea dorada principal -->
+          <path
+            d="M40,0 Q 95,500 40,1000"
+            stroke="#b8960f"
+            stroke-width="6.5"
+            vector-effect="non-scaling-stroke"
+          />
+          <!-- Línea dorada sutil -->
+          <path
+            d="M35,0 Q 90,500 35,1000"
+            stroke="#d4af37"
+            stroke-width="4.5"
+            opacity="0.3"
+            vector-effect="non-scaling-stroke"
+          />
+        </svg>
+      </div>
+
+      <!-- ===== Panel derecho: Imagen del colegio ===== -->
+      <div
+        class="hidden lg:flex lg:flex-1 h-screen relative hero-bg overflow-hidden flex-col"
+        x-data="{ slide: 0, slides: [
+          { title: '¡Somos los mejores y siempre los primeros!', text: 'Ciencia, Honor y Tecnología. Bienvenido al Aula Virtual del Colegio Cristo Rey.' },
+          { title: 'Formando hoy un mejor mañana', text: 'Acompañamos a cada estudiante con disciplina, valores y grandes sueños.' },
+          { title: 'Más que un colegio, una gran familia', text: 'Conecta tus tareas, notas y comunicados en un solo lugar.' }
+        ] }"
+        x-init="setInterval(() => slide = (slide + 1) % slides.length, 4500)"
+      >
+        <!-- Franja superior: lema -->
+        <div
+          class="relative z-10 flex items-center justify-end pl-16 pr-10 pt-8 fade-in-up"
+        >
+          <span
+            class="text-[11px] font-semibold tracking-widest text-yellow-300"
+          >
+            FORMANDO HOY UN MEJOR MAÑANA
+          </span>
+        </div>
+
+        <!-- Contenido central -->
+        <div
+          class="relative z-10 flex flex-1 flex-col items-center justify-center w-full px-14 text-center"
+        >
+          <div class="relative h-32 w-full max-w-sm">
+            <template x-for="(s, i) in slides" :key="i">
+              <div
+                x-show="slide === i"
+                x-transition:enter="transition ease-out duration-500"
+                x-transition:enter-start="opacity-0 translate-y-2"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-300"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="absolute inset-0"
+              >
+                <h2
+                  class="text-2xl font-bold text-white mb-3"
+                  x-text="s.title"
+                ></h2>
+                <p class="text-white/85 text-sm" x-text="s.text"></p>
+              </div>
+            </template>
+          </div>
+
+          <div class="flex gap-2 mt-4">
+            <template x-for="(s, i) in slides" :key="i">
+              <button
+                type="button"
+                @click="slide = i"
+                :class="slide === i ? 'w-8 bg-red-500' : 'w-4 bg-white/50 hover:bg-white/80'"
+                class="h-1.5 rounded-full transition-all duration-300"
+              ></button>
+            </template>
+          </div>
+        </div>
+
+        <!-- Franja inferior de valores -->
+        <div
+          class="relative z-10 grid grid-cols-3 gap-2 border-t border-white/15 bg-black/35 pl-16 pr-6 py-5 backdrop-blur-sm fade-in-up"
+          style="animation-delay: 0.2s"
+        >
+          <div class="flex flex-col items-center gap-1.5 text-center">
+            <svg
+              class="w-5 h-5 text-yellow-300"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                d="M10 2l7 3.5-7 3.5-7-3.5L10 2zm-7 6.2 7 3.5 7-3.5v3.9l-7 3.5-7-3.5V8.2z"
+              />
+            </svg>
+            <span class="text-[11px] font-medium text-white/90 leading-tight"
+              >Aprende<br />sin límites</span
+            >
+          </div>
+          <div class="flex flex-col items-center gap-1.5 text-center">
+            <svg
+              class="w-5 h-5 text-yellow-300"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                d="M7 8a3 3 0 100-6 3 3 0 000 6zm7 1a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM2 17c0-2.8 2.2-5 5-5s5 2.2 5 5H2zm11.5 0c-.1-1.4-.6-2.7-1.5-3.7a4.5 4.5 0 016 3.7h-4.5z"
+              />
+            </svg>
+            <span class="text-[11px] font-medium text-white/90 leading-tight"
+              >Conéctate<br />con tu colegio</span
+            >
+          </div>
+          <div class="flex flex-col items-center gap-1.5 text-center">
+            <svg
+              class="w-5 h-5 text-yellow-300"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path d="M3 17V9h3v8H3zm5.5 0V5h3v12h-3zM14 17v-5h3v5h-3z" />
+            </svg>
+            <span class="text-[11px] font-medium text-white/90 leading-tight"
+              >Construye<br />tu futuro</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

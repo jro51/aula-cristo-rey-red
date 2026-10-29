@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Configuración de periodos académicos</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #263238;
+        }
+
+        .encabezado {
+            background-color: #243447;
+            color: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .encabezado h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .volver {
+            color: white;
+            text-decoration: none;
+            background-color: #455a64;
+            padding: 9px 16px;
+            border-radius: 5px;
+        }
+
+        .contenedor {
+            width: 95%;
+            max-width: 1250px;
+            margin: 25px auto;
+        }
+
+        .mensaje {
+            padding: 13px 16px;
+            margin-bottom: 18px;
+            border-radius: 5px;
+        }
+
+        .mensaje-exito {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .mensaje-error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .formularios {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .tarjeta {
+            background-color: white;
+            padding: 22px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .tarjeta h2 {
+            margin-top: 0;
+            font-size: 19px;
+            color: #243447;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 12px;
+        }
+
+        .grupo {
+            margin-bottom: 15px;
+        }
+
+        .grupo label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .grupo input,
+        .grupo select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .fila {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .boton {
+            border: none;
+            padding: 10px 17px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .boton-guardar {
+            width: 100%;
+            color: white;
+            background-color: #1976d2;
+        }
+
+        .boton-guardar:hover {
+            background-color: #1565c0;
+        }
+
+        .boton-activar {
+            color: white;
+            background-color: #2e7d32;
+        }
+
+        .boton-activar:hover {
+            background-color: #1b5e20;
+        }
+
+        .tabla-contenedor {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        th {
+            color: white;
+            background-color: #34495e;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .estado {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .estado-activo {
+            color: #155724;
+            background-color: #d4edda;
+        }
+
+        .estado-inactivo {
+            color: #721c24;
+            background-color: #f8d7da;
+        }
+
+        .estado-vigente {
+            color: #0c5460;
+            background-color: #d1ecf1;
+        }
+
+        .sin-registros {
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        @media (max-width: 800px) {
+            .formularios,
+            .fila {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="encabezado">
+    <h1>Configuración de periodos académicos</h1>
+
+    <a class="volver" th:href="@{/academico}">
+        Volver
+    </a>
+</header>
+
+<main class="contenedor">
+
+    <div th:if="${mensajeExito}"
+         class="mensaje mensaje-exito"
+         th:text="${mensajeExito}">
+    </div>
+
+    <div th:if="${mensajeError}"
+         class="mensaje mensaje-error"
+         th:text="${mensajeError}">
+    </div>
+
+    <section class="formularios">
+
+        <!-- Registrar año académico -->
+        <div class="tarjeta">
+
+            <h2>Registrar año académico</h2>
+
+            <form th:action="@{/academico/periodos/anios/guardar}"
+                  th:object="${anioAcademico}"
+                  method="post">
+
+                <div class="grupo">
+                    <label for="anio">Año académico</label>
+
+                    <input id="anio"
+                           type="number"
+                           min="2000"
+                           max="2100"
+                           th:field="*{anio}"
+                           placeholder="Ejemplo: 2026"
+                           required>
+                </div>
+
+                <div class="grupo">
+                    <label for="descripcion">
+                        Descripción
+                    </label>
+
+                    <input id="descripcion"
+                           type="text"
+                           th:field="*{descripcion}"
+                           placeholder="Ejemplo: Año escolar 2026">
+                </div>
+
+                <button type="submit"
+                        class="boton boton-guardar">
+                    Registrar año
+                </button>
+
+            </form>
+        </div>
+
+        <!-- Registrar periodo académico -->
+        <div class="tarjeta">
+
+            <h2>Registrar periodo o bimestre</h2>
+
+            <form th:action="@{/academico/periodos/guardar}"
+                  th:object="${periodoAcademico}"
+                  method="post">
+
+                <div class="fila">
+
+                    <div class="grupo">
+                        <label for="anioAcademico">
+                            Año académico
+                        </label>
+
+                        <select id="anioAcademico"
+                                th:field="*{anioAcademico.id}"
+                                required>
+
+                            <option value="">
+                                Seleccione un año
+                            </option>
+
+                            <option th:each="anioItem : ${aniosAcademicos}"
+                                    th:value="${anioItem.id}"
+                                    th:text="${anioItem.anio}"
+                                    th:disabled="${!anioItem.activo}">
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="grupo">
+                        <label for="nombre">
+                            Nombre
+                        </label>
+
+                        <input id="nombre"
+                               type="text"
+                               th:field="*{nombre}"
+                               placeholder="Ejemplo: Primer Bimestre"
+                               required>
+                    </div>
+
+                </div>
+
+                <div class="fila">
+
+                    <div class="grupo">
+                        <label for="numero">
+                            Número del periodo
+                        </label>
+
+                        <input id="numero"
+                               type="number"
+                               min="1"
+                               th:field="*{numero}"
+                               placeholder="Ejemplo: 1"
+                               required>
+                    </div>
+
+                    <div></div>
+
+                </div>
+
+                <div class="fila">
+
+                    <div class="grupo">
+                        <label for="fechaInicio">
+                            Fecha de inicio
+                        </label>
+
+                        <input id="fechaInicio"
+                               type="date"
+                               th:field="*{fechaInicio}"
+                               required>
+                    </div>
+
+                    <div class="grupo">
+                        <label for="fechaFin">
+                            Fecha de finalización
+                        </label>
+
+                        <input id="fechaFin"
+                               type="date"
+                               th:field="*{fechaFin}"
+                               required>
+                    </div>
+
+                </div>
+
+                <button type="submit"
+                        class="boton boton-guardar">
+                    Registrar periodo
+                </button>
+
+            </form>
+        </div>
+
+    </section>
+
+    <!-- Lista de años -->
+    <section class="tarjeta" style="margin-bottom: 25px;">
+
+        <h2>Años académicos registrados</h2>
+
+        <div class="tabla-contenedor">
+
+            <table th:if="${!#lists.isEmpty(aniosAcademicos)}">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Año</th>
+                        <th>Descripción</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="anioItem : ${aniosAcademicos}">
+                        <td th:text="${anioItem.id}"></td>
+                        <td th:text="${anioItem.anio}"></td>
+
+                        <td th:text="${anioItem.descripcion != null
+                                    && !anioItem.descripcion.isEmpty()
+                                    ? anioItem.descripcion
+                                    : 'Sin descripción'}">
+                        </td>
+
+                        <td>
+                            <span th:if="${anioItem.activo}"
+                                  class="estado estado-activo">
+                                Activo
+                            </span>
+
+                            <span th:unless="${anioItem.activo}"
+                                  class="estado estado-inactivo">
+                                Inactivo
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+            <div th:if="${#lists.isEmpty(aniosAcademicos)}"
+                 class="sin-registros">
+                No existen años académicos registrados.
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Lista de periodos -->
+    <section class="tarjeta">
+
+        <h2>Periodos académicos registrados</h2>
+
+        <div class="tabla-contenedor">
+
+            <table th:if="${!#lists.isEmpty(periodosAcademicos)}">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Año</th>
+                        <th>Número</th>
+                        <th>Periodo</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th>Estado</th>
+                        <th>Periodo vigente</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="periodo : ${periodosAcademicos}">
+
+                        <td th:text="${periodo.id}"></td>
+
+                        <td th:text="${periodo.anioAcademico.anio}">
+                        </td>
+
+                        <td th:text="${periodo.numero}"></td>
+
+                        <td th:text="${periodo.nombre}"></td>
+
+                        <td th:text="${#temporals.format(
+                            periodo.fechaInicio, 'dd/MM/yyyy')}">
+                        </td>
+
+                        <td th:text="${#temporals.format(
+                            periodo.fechaFin, 'dd/MM/yyyy')}">
+                        </td>
+
+                        <td>
+                            <span th:if="${periodo.activo}"
+                                  class="estado estado-activo">
+                                Activo
+                            </span>
+
+                            <span th:unless="${periodo.activo}"
+                                  class="estado estado-inactivo">
+                                Inactivo
+                            </span>
+                        </td>
+
+                        <td>
+                            <span th:if="${periodo.vigente}"
+                                  class="estado estado-vigente">
+                                Vigente
+                            </span>
+
+                            <span th:unless="${periodo.vigente}">
+                                No vigente
+                            </span>
+                        </td>
+
+                        <td>
+                            <form th:if="${periodo.activo
+                                         && !periodo.vigente}"
+                                  th:action="@{/academico/periodos/{id}/vigente(
+                                      id=${periodo.id})}"
+                                  method="post">
+
+                                <button type="submit"
+                                        class="boton boton-activar">
+                                    Activar
+                                </button>
+
+                            </form>
+
+                            <span th:if="${periodo.vigente}">
+                                Periodo actual
+                            </span>
+                        </td>
+
+                    </tr>
+                </tbody>
+
+            </table>
+
+            <div th:if="${#lists.isEmpty(periodosAcademicos)}"
+                 class="sin-registros">
+                No existen periodos académicos registrados.
+            </div>
+
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Editar curso | Aula Cristo Rey</title>
+
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/alpine.min.js}"></script>
+
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+
+<body
+    class="bg-slate-50 text-slate-800"
+    x-data="{
+        sidebarToggle: false,
+        darkMode: false,
+        menuToggle: false
+    }"
+>
+
+<div class="flex h-screen overflow-hidden">
+
+    <div th:replace="~{partials/sidebar :: sidebar}"></div>
+
+    <div class="relative flex flex-1 flex-col overflow-y-auto">
+
+        <div th:replace="~{partials/overlay :: overlay}"></div>
+        <div th:replace="~{partials/header :: header}"></div>
+
+        <main class="p-5 sm:p-8 lg:p-10">
+
+            <div class="mx-auto max-w-3xl">
+
+                <div class="mb-7">
+                    <a
+                        th:href="@{/cursos}"
+                        class="text-sm font-semibold text-blue-600
+                               hover:text-blue-800"
+                    >
+                        ← Volver a cursos
+                    </a>
+
+                    <h1 class="mt-4 text-3xl font-bold text-slate-900">
+                        Editar curso
+                    </h1>
+
+                    <p class="mt-2 text-slate-500">
+                        Actualiza la información académica del curso.
+                    </p>
+                </div>
+
+                <div
+                    th:if="${mensajeError}"
+                    class="mb-6 rounded-xl border border-red-200
+                           bg-red-50 px-5 py-4 text-red-700"
+                >
+                    <strong>Error:</strong>
+                    <span th:text="${mensajeError}"></span>
+                </div>
+
+                <section
+                    class="overflow-hidden rounded-2xl border
+                           border-slate-200 bg-white shadow-lg"
+                >
+                    <div
+                        class="bg-gradient-to-r from-blue-700
+                               to-indigo-600 px-7 py-6 text-white"
+                    >
+                        <h2 class="text-xl font-bold">
+                            Información del curso
+                        </h2>
+
+                        <p class="mt-1 text-sm text-blue-100">
+                            Los campos marcados son obligatorios.
+                        </p>
+                    </div>
+
+                    <form
+                        th:action="@{/cursos/actualizar/{id}(
+                            id=${cursoId})}"
+                        th:object="${curso}"
+                        method="post"
+                        class="space-y-6 p-7"
+                    >
+
+                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                            <div>
+                                <label
+                                    for="codigo"
+                                    class="mb-2 block text-sm font-semibold"
+                                >
+                                    Código
+                                </label>
+
+                                <input
+                                    id="codigo"
+                                    type="text"
+                                    maxlength="20"
+                                    th:field="*{codigo}"
+                                    class="w-full rounded-xl border
+                                           border-slate-300 px-4 py-3
+                                           outline-none focus:border-blue-500
+                                           focus:ring-4 focus:ring-blue-100"
+                                    required
+                                >
+
+                                <p
+                                    th:if="${#fields.hasErrors('codigo')}"
+                                    th:errors="*{codigo}"
+                                    class="mt-1 text-sm text-red-600"
+                                ></p>
+                            </div>
+
+                            <div>
+                                <label
+                                    for="nombre"
+                                    class="mb-2 block text-sm font-semibold"
+                                >
+                                    Nombre
+                                </label>
+
+                                <input
+                                    id="nombre"
+                                    type="text"
+                                    maxlength="100"
+                                    th:field="*{nombre}"
+                                    class="w-full rounded-xl border
+                                           border-slate-300 px-4 py-3
+                                           outline-none focus:border-blue-500
+                                           focus:ring-4 focus:ring-blue-100"
+                                    required
+                                >
+                            </div>
+
+                            <div>
+                                <label
+                                    for="grado"
+                                    class="mb-2 block text-sm font-semibold"
+                                >
+                                    Grado
+                                </label>
+
+                                <select
+                                    id="grado"
+                                    th:field="*{grado.id}"
+                                    class="w-full rounded-xl border
+                                           border-slate-300 bg-white px-4 py-3
+                                           outline-none focus:border-blue-500
+                                           focus:ring-4 focus:ring-blue-100"
+                                    required
+                                >
+                                    <option value="">
+                                        Seleccione un grado
+                                    </option>
+
+                                    <option
+                                        th:each="gradoItem : ${grados}"
+                                        th:value="${gradoItem.id}"
+                                        th:text="${gradoItem.nivel.nombre
+                                                 + ' - '
+                                                 + gradoItem.nombre}"
+                                    ></option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label
+                                    for="horasSemanales"
+                                    class="mb-2 block text-sm font-semibold"
+                                >
+                                    Horas semanales
+                                </label>
+
+                                <input
+                                    id="horasSemanales"
+                                    type="number"
+                                    min="1"
+                                    max="40"
+                                    th:field="*{horasSemanales}"
+                                    class="w-full rounded-xl border
+                                           border-slate-300 px-4 py-3
+                                           outline-none focus:border-blue-500
+                                           focus:ring-4 focus:ring-blue-100"
+                                    required
+                                >
+                            </div>
+
+                        </div>
+
+                        <div>
+                            <label
+                                for="descripcion"
+                                class="mb-2 block text-sm font-semibold"
+                            >
+                                Descripción
+                            </label>
+
+                            <textarea
+                                id="descripcion"
+                                rows="4"
+                                maxlength="250"
+                                th:field="*{descripcion}"
+                                class="w-full resize-none rounded-xl border
+                                       border-slate-300 px-4 py-3
+                                       outline-none focus:border-blue-500
+                                       focus:ring-4 focus:ring-blue-100"
+                            ></textarea>
+                        </div>
+
+                        <div
+                            class="flex flex-col-reverse gap-3
+                                   border-t border-slate-200 pt-6
+                                   sm:flex-row sm:justify-end"
+                        >
+                            <a
+                                th:href="@{/cursos}"
+                                class="rounded-xl border border-slate-300
+                                       px-6 py-3 text-center font-semibold
+                                       text-slate-700 hover:bg-slate-100"
+                            >
+                                Cancelar
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="rounded-xl bg-blue-600 px-6 py-3
+                                       font-semibold text-white shadow-md
+                                       hover:bg-blue-700
+                                       focus:ring-4 focus:ring-blue-200"
+                            >
+                                Guardar cambios
+                            </button>
+                        </div>
+
+                    </form>
+                </section>
+
+            </div>
+
+        </main>
+    </div>
+</div>
+
+</body>
+</html>

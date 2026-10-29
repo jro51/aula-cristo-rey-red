@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Administración Académica | Aula Cristo Rey</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/alpine.min.js}"></script>
+    <link href="/css/style.css" rel="stylesheet"/>
+</head>
+
+<body class="bg-gray-50 text-gray-800" x-data="{ sidebarToggle: false, darkMode: false, menuToggle: false }">
+
+<div class="flex h-screen overflow-hidden">
+    <div th:replace="~{partials/sidebar :: sidebar}"></div>
+
+    <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+        <div th:replace="~{partials/overlay :: overlay}"></div>
+        <div th:replace="~{partials/header :: header}"></div>
+
+        <main class="space-y-8 p-6 sm:p-10">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Administración académica</h1>
+                <p class="mt-1 text-sm text-gray-500">Gestiona los niveles, grados y secciones del colegio.</p>
+            </div>
+
+            <div th:if="${mensajeExito}" class="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+                <span th:text="${mensajeExito}"></span>
+            </div>
+
+            <div th:if="${mensajeError}" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                <span th:text="${mensajeError}"></span>
+            </div>
+
+            <!-- NIVEL -->
+            <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="mb-5 text-xl font-semibold text-gray-900">Niveles educativos</h2>
+
+                <form th:action="@{/academico/niveles/guardar}" th:object="${nuevoNivel}" method="post" class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <input type="text" th:field="*{nombre}" placeholder="Ej. Secundaria" class="rounded-lg border border-gray-300 px-4 py-2.5" required/>
+                    <input type="text" th:field="*{descripcion}" placeholder="Descripción del nivel" class="rounded-lg border border-gray-300 px-4 py-2.5"/>
+                    <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 font-medium text-white hover:bg-blue-700">Registrar nivel</button>
+                </form>
+
+                <div class="overflow-x-auto">
+                    <table id="tabla-niveles" th:fragment="tablaNiveles" class="w-full min-w-[600px]">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm">ID</th>
+                            <th class="px-4 py-3 text-left text-sm">Nivel</th>
+                            <th class="px-4 py-3 text-left text-sm">Descripción</th>
+                            <th class="px-4 py-3 text-left text-sm">Estado</th>
+                            <th class="px-4 py-3 text-right text-sm">Acción</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                        <tr th:each="nivel : ${niveles}">
+                            <td class="px-4 py-3 text-sm" th:text="${nivel.id}"></td>
+                            <td class="px-4 py-3 text-sm font-medium" th:text="${nivel.nombre}"></td>
+                            <td class="px-4 py-3 text-sm" th:text="${nivel.descripcion}"></td>
+                            <td class="px-4 py-3">
+                                <span th:if="${nivel.activo}" class="rounded-full bg-green-100 px-3 py-1 text-xs text-green-700">Activo</span>
+                                <span th:unless="${nivel.activo}" class="rounded-full bg-red-100 px-3 py-1 text-xs text-red-700">Inactivo</span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <form th:action="@{/academico/niveles/{id}/estado(id=${nivel.id})}" method="post">
+                                    <input type="hidden" name="activo" th:value="${!nivel.activo}"/>
+                                    <button type="submit" class="text-sm font-medium text-blue-600" th:text="${nivel.activo ? 'Desactivar' : 'Activar'}"></button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- GRADO -->
+            <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="mb-5 text-xl font-semibold text-gray-900">Grados</h2>
+
+                <form th:action="@{/academico/grados/guardar}" th:object="${nuevoGrado}" method="post" class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+                    <input type="text" th:field="*{nombre}" placeholder="Ej. 1ro" class="rounded-lg border border-gray-300 px-4 py-2.5" required/>
+                    <input type="text" th:field="*{descripcion}" placeholder="Descripción" class="rounded-lg border border-gray-300 px-4 py-2.5"/>
+                    <select th:field="*{nivel.id}" class="rounded-lg border border-gray-300 bg-white px-4 py-2.5" required>
+                        <option value="">Seleccione un nivel</option>
+                        <option th:each="nivel : ${niveles}" th:value="${nivel.id}" th:text="${nivel.nombre}"></option>
+                    </select>
+                    <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 font-medium text-white hover:bg-blue-700">Registrar grado</button>
+                </form>
+
+                <div class="overflow-x-auto">
+                    <table id="tabla-grados" th:fragment="tablaGrados" class="w-full min-w-[650px]">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm">Grado</th>
+                            <th class="px-4 py-3 text-left text-sm">Nivel</th>
+                            <th class="px-4 py-3 text-left text-sm">Descripción</th>
+                            <th class="px-4 py-3 text-left text-sm">Estado</th>
+                            <th class="px-4 py-3 text-right text-sm">Acción</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                        <tr th:each="grado : ${grados}">
+                            <td class="px-4 py-3 text-sm font-medium" th:text="${grado.nombre}"></td>
+                            <td class="px-4 py-3 text-sm" th:text="${grado.nivel.nombre}"></td>
+                            <td class="px-4 py-3 text-sm" th:text="${grado.descripcion}"></td>
+                            <td class="px-4 py-3">
+                                <span th:text="${grado.activo ? 'Activo' : 'Inactivo'}" class="text-sm"></span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <form th:action="@{/academico/grados/{id}/estado(id=${grado.id})}" method="post">
+                                    <input type="hidden" name="activo" th:value="${!grado.activo}"/>
+                                    <button type="submit" class="text-sm font-medium text-blue-600" th:text="${grado.activo ? 'Desactivar' : 'Activar'}"></button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECCIÓN -->
+            <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="mb-5 text-xl font-semibold text-gray-900">Secciones</h2>
+
+                <form th:action="@{/academico/secciones/guardar}" th:object="${nuevaSeccion}" method="post" class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+                    <input type="text" th:field="*{nombre}" placeholder="Ej. A" class="rounded-lg border border-gray-300 px-4 py-2.5" required/>
+                    <input type="text" th:field="*{descripcion}" placeholder="Descripción" class="rounded-lg border border-gray-300 px-4 py-2.5"/>
+                    <select th:field="*{grado.id}" class="rounded-lg border border-gray-300 bg-white px-4 py-2.5" required>
+                        <option value="">Seleccione un grado</option>
+                        <option th:each="grado : ${grados}" th:value="${grado.id}" th:text="${grado.nivel.nombre + ' - ' + grado.nombre}"></option>
+                    </select>
+                    <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 font-medium text-white hover:bg-blue-700">Registrar sección</button>
+                </form>
+
+                <div class="overflow-x-auto">
+                    <table id="tabla-secciones" th:fragment="tablaSecciones" class="w-full min-w-[700px]">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm">Sección</th>
+                            <th class="px-4 py-3 text-left text-sm">Grado</th>
+                            <th class="px-4 py-3 text-left text-sm">Nivel</th>
+                            <th class="px-4 py-3 text-left text-sm">Estado</th>
+                            <th class="px-4 py-3 text-right text-sm">Acción</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                        <tr th:each="seccion : ${secciones}">
+                            <td class="px-4 py-3 text-sm font-medium" th:text="${seccion.nombre}"></td>
+                            <td class="px-4 py-3 text-sm" th:text="${seccion.grado.nombre}"></td>
+                            <td class="px-4 py-3 text-sm" th:text="${seccion.grado.nivel.nombre}"></td>
+                            <td class="px-4 py-3 text-sm" th:text="${seccion.activo ? 'Activo' : 'Inactivo'}"></td>
+                            <td class="px-4 py-3 text-right">
+                                <form th:action="@{/academico/secciones/{id}/estado(id=${seccion.id})}" method="post">
+                                    <input type="hidden" name="activo" th:value="${!seccion.activo}"/>
+                                    <button type="submit" class="text-sm font-medium text-blue-600" th:text="${seccion.activo ? 'Desactivar' : 'Activar'}"></button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script>
+    function actualizarTablaParcial(url, tablaId) {
+        fetch(url)
+            .then(res => res.text())
+            .then(html => {
+                if (html.trim() !== '') {
+                    const tabla = document.getElementById(tablaId);
+                    if (tabla) {
+                        const scrollContainer = tabla.closest('.overflow-x-auto');
+                        const scrollPos = scrollContainer ? scrollContainer.scrollLeft : 0;
+
+                        tabla.outerHTML = html;
+
+                        const nuevaTabla = document.getElementById(tablaId);
+                        const nuevoContainer = nuevaTabla ? nuevaTabla.closest('.overflow-x-auto') : scrollContainer;
+                        if (nuevoContainer) {
+                            nuevoContainer.scrollLeft = scrollPos;
+                        }
+                    }
+                }
+            })
+            .catch(err => console.error(err));
+    }
+
+    setInterval(function () {
+        const activeElement = document.activeElement;
+        const isInteracting = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT' || activeElement.tagName === 'TEXTAREA');
+
+        if (!isInteracting) {
+            actualizarTablaParcial('/academico/parcial/niveles', 'tabla-niveles');
+            actualizarTablaParcial('/academico/parcial/grados', 'tabla-grados');
+            actualizarTablaParcial('/academico/parcial/secciones', 'tabla-secciones');
+        }
+    }, 3000);
+</script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignación de docentes | Aula Cristo Rey</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/alpine.min.js}"></script>
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+
+<body class="bg-slate-50 text-slate-800" x-data="{ sidebarToggle: false, darkMode: false, menuToggle: false }">
+
+<div class="flex h-screen overflow-hidden">
+    <!-- Menú lateral -->
+    <div th:replace="~{partials/sidebar :: sidebar}"></div>
+
+    <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+        <div th:replace="~{partials/overlay :: overlay}"></div>
+        <div th:replace="~{partials/header :: header}"></div>
+
+        <main class="p-5 sm:p-8 lg:p-10">
+            <div class="mx-auto max-w-7xl space-y-7">
+
+                <!-- Encabezado -->
+                <section class="overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 p-7 text-white shadow-lg">
+                    <div class="flex flex-col justify-between gap-5 md:flex-row md:items-center">
+                        <div>
+                            <p class="mb-2 text-sm font-semibold uppercase tracking-widest text-blue-100">Administración académica</p>
+                            <h1 class="text-3xl font-bold">Asignación de docentes</h1>
+                            <p class="mt-2 max-w-2xl text-blue-100">Asigna docentes responsables a los cursos, grados y secciones del colegio.</p>
+                        </div>
+                        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 text-3xl backdrop-blur-sm">
+                            👨‍🏫
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Mensaje correcto -->
+                <div th:if="${mensajeExito}" class="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-800 shadow-sm">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 font-bold">✓</span>
+                    <span class="font-medium" th:text="${mensajeExito}"></span>
+                </div>
+
+                <!-- Mensaje de error -->
+                <div th:if="${mensajeError}" class="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-red-800 shadow-sm">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 font-bold">!</span>
+                    <span class="font-medium" th:text="${mensajeError}"></span>
+                </div>
+
+                <!-- Estadísticas -->
+                <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p class="text-sm font-semibold text-slate-500">Docentes disponibles</p>
+                        <p class="mt-2 text-3xl font-bold text-blue-700" th:text="${#lists.size(docentes)}">0</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p class="text-sm font-semibold text-slate-500">Cursos activos</p>
+                        <p class="mt-2 text-3xl font-bold text-indigo-700" th:text="${#lists.size(cursos)}">0</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p class="text-sm font-semibold text-slate-500">Asignaciones registradas</p>
+                        <p class="mt-2 text-3xl font-bold text-emerald-700" th:text="${#lists.size(asignaciones)}">0</p>
+                    </div>
+                </section>
+
+                <!-- Formulario -->
+                <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <div class="border-b border-slate-200 px-6 py-5">
+                        <h2 class="text-xl font-bold text-slate-900">Nueva asignación</h2>
+                        <p class="mt-1 text-sm text-slate-500">Selecciona primero el grado para mostrar sus cursos y secciones correspondientes.</p>
+                    </div>
+
+                    <form th:action="@{/asignaciones-docente/guardar}" method="post" class="p-6">
+                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+                            <!-- Docente -->
+                            <div>
+                                <label for="docenteId" class="mb-2 block text-sm font-semibold text-slate-700">Docente</label>
+                                <select id="docenteId" name="docenteId" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                                    <option value="">Seleccione un docente</option>
+                                    <option th:each="docente : ${docentes}" th:value="${docente.idUsuario}" th:text="${docente.username}">Docente</option>
+                                </select>
+                            </div>
+                            <!-- Grado -->
+                            <div>
+                                <label for="gradoId" class="mb-2 block text-sm font-semibold text-slate-700">Grado</label>
+                                <select id="gradoId" name="gradoId" required onchange="filtrarOpciones()" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                                    <option value="">Seleccione un grado</option>
+                                    <option th:each="grado : ${grados}" th:value="${grado.id}" th:text="${grado.nombre + ' - ' + grado.nivel.nombre}">Grado</option>
+                                </select>
+                            </div>
+                            <!-- Curso -->
+                            <div>
+                                <label for="cursoId" class="mb-2 block text-sm font-semibold text-slate-700">Curso</label>
+                                <select id="cursoId" name="cursoId" required disabled class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100">
+                                    <option value="">Seleccione un curso</option>
+                                    <option th:each="curso : ${cursos}" th:value="${curso.id}" th:text="${curso.codigo + ' - ' + curso.nombre}" th:attr="data-grado=${curso.grado.id}">Curso</option>
+                                </select>
+                            </div>
+                            <!-- Sección -->
+                            <div>
+                                <label for="seccionId" class="mb-2 block text-sm font-semibold text-slate-700">Sección</label>
+                                <select id="seccionId" name="seccionId" required disabled class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100">
+                                    <option value="">Seleccione una sección</option>
+                                    <option th:each="seccion : ${secciones}" th:value="${seccion.id}" th:text="${seccion.nombre}" th:attr="data-grado=${seccion.grado.id}">Sección</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(docentes)}" class="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                            No existen usuarios activos con rol DOCENTE. Primero debes asignar ese rol a un usuario.
+                        </div>
+
+                        <div class="mt-6 flex justify-end">
+                            <button type="submit" th:disabled="${#lists.isEmpty(docentes)}" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400">
+                                <span>＋</span> Guardar asignación
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Listado -->
+                <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <div class="flex flex-col justify-between gap-4 border-b border-slate-200 px-6 py-5 md:flex-row md:items-center">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Asignaciones registradas</h2>
+                            <p class="mt-1 text-sm text-slate-500">Consulta los docentes responsables de cada curso.</p>
+                        </div>
+                        <input id="buscador" type="text" onkeyup="buscarAsignaciones()" placeholder="Buscar docente o curso..." class="w-full rounded-xl border border-slate-300 px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 md:w-72">
+                    </div>
+
+                    <!-- Contenedor estático con scroll -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[900px]" id="tabla-asignaciones" th:fragment="tablaAsignacionesContainer">
+                            <thead class="bg-slate-50">
+                            <tr class="text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                                <th class="px-6 py-4">Docente</th>
+                                <th class="px-6 py-4">Curso</th>
+                                <th class="px-6 py-4">Grado</th>
+                                <th class="px-6 py-4">Sección</th>
+                                <th class="px-6 py-4">Estado</th>
+                                <th class="px-6 py-4 text-right">Acción</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                            <tr th:each="asignacion : ${asignaciones}" class="fila-asignacion transition hover:bg-blue-50/50">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700" th:text="${#strings.substring(asignacion.docente.username, 0, 1).toUpperCase()}">D</div>
+                                        <div>
+                                            <p class="font-semibold text-slate-900" th:text="${asignacion.docente.username}">Docente</p>
+                                            <p class="text-xs text-slate-500">DOCENTE</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="font-semibold text-slate-900" th:text="${asignacion.curso.nombre}">Curso</p>
+                                    <p class="text-xs text-slate-500" th:text="${asignacion.curso.codigo}">Código</p>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-700" th:text="${asignacion.grado.nombre}">Grado</td>
+                                <td class="px-6 py-4 text-sm font-semibold text-slate-700" th:text="${asignacion.seccion.nombre}">A</td>
+                                <td class="px-6 py-4">
+                                    <span th:if="${asignacion.activo}" class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Activa</span>
+                                    <span th:unless="${asignacion.activo}" class="inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs font-bold text-slate-600">Inactiva</span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <form th:action="@{/asignaciones-docente/{id}/estado(id=${asignacion.id})}" method="post" class="inline">
+                                        <input type="hidden" name="activo" th:value="${!asignacion.activo}">
+                                        <button type="submit" th:classappend="${asignacion.activo} ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'" class="rounded-lg border px-4 py-2 text-sm font-semibold transition" th:text="${asignacion.activo} ? 'Desactivar' : 'Activar'">Cambiar estado</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(asignaciones)}">
+                                <td colspan="6" class="px-6 py-14 text-center">
+                                    <div class="text-4xl">📚</div>
+                                    <p class="mt-3 font-semibold text-slate-700">No existen asignaciones registradas</p>
+                                    <p class="mt-1 text-sm text-slate-500">Utiliza el formulario para realizar la primera asignación.</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    function filtrarOpciones() {
+        const gradoId = document.getElementById("gradoId").value;
+        const cursoSelect = document.getElementById("cursoId");
+        const seccionSelect = document.getElementById("seccionId");
+
+        cursoSelect.value = "";
+        seccionSelect.value = "";
+
+        cursoSelect.disabled = gradoId === "";
+        seccionSelect.disabled = gradoId === "";
+
+        filtrarSelectPorGrado(cursoSelect, gradoId);
+        filtrarSelectPorGrado(seccionSelect, gradoId);
+    }
+
+    function filtrarSelectPorGrado(select, gradoId) {
+        Array.from(select.options).forEach(function (option, index) {
+            if (index === 0) {
+                option.hidden = false;
+                option.disabled = false;
+                return;
+            }
+
+            const perteneceAlGrado = option.dataset.grado === gradoId;
+            option.hidden = !perteneceAlGrado;
+            option.disabled = !perteneceAlGrado;
+        });
+    }
+
+    function buscarAsignaciones() {
+        const texto = document.getElementById("buscador").value.toLowerCase().trim();
+        const filas = document.querySelectorAll(".fila-asignacion");
+
+        filas.forEach(function (fila) {
+            const contenido = fila.textContent.toLowerCase();
+            fila.style.display = contenido.includes(texto) ? "" : "none";
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        filtrarOpciones();
+    });
+
+    // Actualización asíncrona en tiempo real cada 3 segundos conservando el scroll horizontal
+    setInterval(function () {
+        const activeElement = document.activeElement;
+        const isInteracting = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT' || activeElement.tagName === 'TEXTAREA');
+
+        if (!isInteracting) {
+            fetch('/asignaciones-docente/parcial')
+                .then(res => res.text())
+                .then(html => {
+                    if (html.trim() !== '') {
+                        const tabla = document.getElementById('tabla-asignaciones');
+                        if (tabla) {
+                            const scrollContainer = tabla.closest('.overflow-x-auto');
+                            const scrollPos = scrollContainer ? scrollContainer.scrollLeft : 0;
+
+                            tabla.outerHTML = html;
+
+                            const nuevaTabla = document.getElementById('tabla-asignaciones');
+                            const nuevoContainer = nuevaTabla ? nuevaTabla.closest('.overflow-x-auto') : scrollContainer;
+                            if (nuevoContainer) {
+                                nuevoContainer.scrollLeft = scrollPos;
+                            }
+                        }
+                    }
+                })
+                .catch(err => console.error('Error al actualizar asignaciones docentes:', err));
+        }
+    }, 3000);
+</script>
+
+</body>
+</html>

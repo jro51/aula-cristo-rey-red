@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Principal | Aula Virtual Cristo Rey</title>
+    
+    <!-- CDNs de Tailwind y Alpine -->
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/alpine.min.js}"></script>
+  </head>
+  <body
+    x-data="{ page: 'ecommerce', 'loaded': true, 'darkMode': false, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }"
+    x-init="
+         darkMode = JSON.parse(localStorage.getItem('darkMode'));
+         $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
+    :class="{'dark bg-gray-900': darkMode === true}"
+  >
+    <!-- Preloader -->
+    <div th:replace="~{partials/preloader :: preloader}"></div>
+
+    <!-- Page Wrapper -->
+    <div class="flex h-screen overflow-hidden">
+      
+      <!-- Sidebar -->
+      <div th:replace="~{partials/sidebar :: sidebar}"></div>
+
+      <!-- Content Area -->
+      <div class="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
+        <!-- Overlay -->
+        <div th:replace="~{partials/overlay :: overlay}"></div>
+        
+        <!-- Header -->
+        <div th:replace="~{partials/header :: header}"></div>
+
+        <!-- Main Content -->
+        <main>
+          <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+            <div class="grid grid-cols-12 gap-4 md:gap-6">
+              
+              <div class="col-span-12 space-y-6 xl:col-span-12">
+                <!-- Tarjetas de métricas (Adaptables para Totales de Alumnos/Docentes) -->
+                <div th:replace="~{partials/metric-group/metric-group-01 :: metric-group}"></div>
+              </div>
+
+              <div class="col-span-12 xl:col-span-12">
+                <!-- Tabla principal (Adaptable para lista de últimos usuarios) -->
+                <div th:replace="~{partials/table/table-01 :: table}"></div>
+              </div>
+
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

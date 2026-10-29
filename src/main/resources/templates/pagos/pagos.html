@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Gestión de Pagos | Aula Cristo Rey</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer th:src="@{/js/alpine.min.js}"></script>
+    <link href="/css/style.css" rel="stylesheet"/>
+</head>
+
+<body class="bg-gray-50 text-gray-800" x-data="{ sidebarToggle: false, darkMode: false, menuToggle: false }">
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar genérico -->
+    <div th:replace="~{partials/sidebar :: sidebar}"></div>
+
+    <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+
+        <div th:replace="~{partials/overlay :: overlay}"></div>
+        <div th:replace="~{partials/header :: header}"></div>
+
+        <main class="space-y-8 p-6 sm:p-10">
+
+            <!-- Título -->
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Registro de Pagos</h1>
+                <p class="mt-1 text-sm text-gray-500">Gestiona y registra las transacciones y mensualidades de los estudiantes.</p>
+            </div>
+
+            <!-- Mensaje de Éxito -->
+            <div th:if="${mensajeExito}" class="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+                <span th:text="${mensajeExito}"></span>
+            </div>
+
+            <!-- Mensaje de Error -->
+            <div th:if="${mensajeError}" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                <span th:text="${mensajeError}"></span>
+            </div>
+
+            <!-- CONTENEDOR CON FRAGMENTO PARA TIEMPO REAL -->
+            <div id="pagosContainer" th:fragment="pagosContainer">
+                <!-- FORMULARIO DE REGISTRO DE PAGO -->
+                <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <h2 class="mb-5 text-xl font-semibold text-gray-900">Nuevo Pago</h2>
+
+                    <form th:action="@{/pagos/guardar}" th:object="${nuevoPago}" method="post" class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+
+                        <!-- Estudiante Select -->
+                        <select id="estudianteSelectId" name="estudianteId" class="rounded-lg border border-gray-300 bg-white px-4 py-2.5" required>
+                            <option value="">Seleccione un estudiante</option>
+                            <option th:each="est : ${estudiantes}"
+                                    th:value="${est.id}"
+                                    th:selected="${est.id == estudianteSeleccionadoId}"
+                                    th:text="${est.apellidos + ', ' + est.nombres + ' (' + est.codigo + ')'}">
+                            </option>
+                        </select>
+
+                        <!-- Concepto -->
+                        <input type="text" th:field="*{concepto}" placeholder="Ej. Matrícula / Pensión Septiembre" class="rounded-lg border border-gray-300 px-4 py-2.5" required/>
+
+                        <!-- Monto -->
+                        <input type="number" step="0.01" th:field="*{monto}" placeholder="Monto (Ej. 150.00)" class="rounded-lg border border-gray-300 px-4 py-2.5" required/>
+
+                        <!-- Fecha de Pago -->
+                        <input type="date" th:field="*{fechaPago}" class="rounded-lg border border-gray-300 px-4 py-2.5" required/>
+
+                        <div class="md:col-span-4 flex justify-end">
+                            <button type="submit" class="rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white hover:bg-blue-700">
+                                Registrar pago
+                            </button>
+                        </div>
+
+                    </form>
+
+                    <!-- SECCIÓN DE ESTADO DE MENSUALIDADES (AVCR-196, AVCR-197 y AVCR-198) -->
+                    <div class="mt-8 border-t border-gray-100 pt-6" th:if="${estudianteSeleccionadoId != null}">
+
+                        <!-- Cabecera con título y filtro por período (AVCR-198) -->
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Estado de Mensualidades del Estudiante</h3>
+
+                            <div class="flex items-center gap-2">
+                                <label for="anioSelectId" class="text-sm font-medium text-gray-600">Período:</label>
+                                <select id="anioSelectId" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm">
+                                    <option value="2026" th:selected="${anioSeleccionado == 2026}">2026</option>
+                                    <option value="2025" th:selected="${anioSeleccionado == 2025}">2025</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[700px] divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Concepto</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Estado</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Monto</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Fecha de Pago</th>
+                                </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 bg-white">
+                                <tr th:each="mensualidad : ${estadoMensualidades}">
+                                    <td class="px-4 py-3 text-sm font-medium text-gray-900" th:text="${mensualidad.concepto}">Concepto</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span th:if="${mensualidad.estado == 'Pagado'}" class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Pagado
+                                        </span>
+                                        <span th:if="${mensualidad.estado == 'Pendiente'}" class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            Pendiente
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-500" th:text="${mensualidad.monto > 0 ? 'S/ ' + mensualidad.monto : '-'}">0.00</td>
+                                    <td class="px-4 py-3 text-sm text-gray-500" th:text="${mensualidad.fechaPago}">-</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TABLA DE HISTORIAL GENERAL DE PAGOS -->
+                    <div class="overflow-x-auto mt-10 border-t border-gray-100 pt-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Historial de Pagos</h3>
+                        <table class="w-full min-w-[700px]">
+                            <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">ID</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Estudiante</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Concepto</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Monto</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Fecha</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                            <tr th:each="pago : ${pagos}">
+                                <td class="px-4 py-3 text-sm" th:text="${pago.id}"></td>
+                                <td class="px-4 py-3 text-sm font-medium" th:text="${pago.estudiante.apellidos + ' ' + pago.estudiante.nombres}"></td>
+                                <td class="px-4 py-3 text-sm" th:text="${pago.concepto}"></td>
+                                <td class="px-4 py-3 text-sm font-semibold text-green-600" th:text="${'S/ ' + pago.monto}"></td>
+                                <td class="px-4 py-3 text-sm" th:text="${pago.fechaPago}"></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(pagos)}">
+                                <td colspan="5" class="px-4 py-4 text-center text-sm text-gray-500">No hay pagos registrados todavía.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </section>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- Script para manejar los filtros combinados y actualización en tiempo real -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const selectEstudiante = document.getElementById("estudianteSelectId");
+        const selectAnio = document.getElementById("anioSelectId");
+
+        function recargarPagina() {
+            const estudianteId = selectEstudiante ? selectEstudiante.value : "";
+            const anio = selectAnio ? selectAnio.value : "2026";
+
+            if(estudianteId) {
+                window.location.href = `/pagos?estudianteId=${estudianteId}&anio=${anio}`;
+            } else {
+                window.location.href = `/pagos`;
+            }
+        }
+
+        if(selectEstudiante) {
+            selectEstudiante.addEventListener("change", recargarPagina);
+        }
+        if(selectAnio) {
+            selectAnio.addEventListener("change", recargarPagina);
+        }
+    });
+
+    // Actualización asíncrona inteligente cada 3 segundos conservando las posiciones de scroll horizontal
+    setInterval(function () {
+        const activeElement = document.activeElement;
+        const isInteracting = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT' || activeElement.tagName === 'TEXTAREA');
+
+        if (!isInteracting) {
+            const urlParams = window.location.search;
+            fetch('/pagos/parcial' + urlParams)
+                .then(res => res.text())
+                .then(html => {
+                    if (html.trim() !== '') {
+                        const container = document.getElementById('pagosContainer');
+                        if (container) {
+                            // 1. Guardar la posición de scroll de todas las tablas con desplazamiento interno
+                            const scrollContainers = container.querySelectorAll('.overflow-x-auto');
+                            const scrollPositions = Array.from(scrollContainers).map(sc => sc.scrollLeft);
+
+                            // 2. Actualizar el contenido HTML del fragmento
+                            container.innerHTML = html;
+
+                            // 3. Restaurar la posición exacta del scroll en cada tabla correspondiente
+                            const newScrollContainers = document.querySelectorAll('#pagosContainer .overflow-x-auto');
+                            newScrollContainers.forEach((sc, index) => {
+                                if (scrollPositions[index] !== undefined) {
+                                    sc.scrollLeft = scrollPositions[index];
+                                }
+                            });
+                        }
+                    }
+                })
+                .catch(err => console.error('Error al actualizar pagos en tiempo real:', err));
+        }
+    }, 3000);
+</script>
+
+</body>
+</html>

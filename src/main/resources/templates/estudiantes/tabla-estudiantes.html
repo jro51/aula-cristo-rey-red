@@ -1,0 +1,40 @@
+<div th:fragment="tablaEstudiantes">
+    <table class="w-full min-w-[950px]">
+        <thead class="bg-gray-50">
+        <tr>
+            <th class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Código</th>
+            <th class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Estudiante</th>
+            <th class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">DNI</th>
+            <th class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Grado</th>
+            <th class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Sección</th>
+            <th class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Estado</th>
+            <th class="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">Acciones</th>
+        </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+        <tr th:each="estudiante : ${estudiantes}" class="hover:bg-gray-50">
+            <td class="whitespace-nowrap px-5 py-4 text-sm font-medium text-blue-600" th:text="${estudiante.codigo}"></td>
+            <td class="px-5 py-4">
+                <p class="text-sm font-medium text-gray-800" th:text="${estudiante.nombres + ' ' + estudiante.apellidos}"></p>
+                <p class="mt-1 text-xs text-gray-500" th:text="${estudiante.correo}"></p>
+            </td>
+            <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-600" th:text="${estudiante.dni}"></td>
+            <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-600" th:text="${estudiante.grado}"></td>
+            <td class="px-5 py-4 text-sm text-gray-600" th:text="${estudiante.seccion}"></td>
+            <td class="px-5 py-4">
+                <span th:if="${estudiante.activo}" class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Activo</span>
+                <span th:unless="${estudiante.activo}" class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">Inactivo</span>
+            </td>
+            <td class="whitespace-nowrap px-5 py-4 text-right">
+                <a th:href="@{/estudiantes/ficha/{id}(id=${estudiante.id})}" class="mr-2 inline-block rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100">Ver ficha</a>
+                <a th:href="@{/estudiantes/editar/{id}(id=${estudiante.id})}" class="inline-block rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-100">Editar</a>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(estudiantes)}">
+            <td colspan="7" class="px-5 py-12 text-center">
+                <p class="text-sm font-medium text-gray-700">No se encontraron estudiantes.</p>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
